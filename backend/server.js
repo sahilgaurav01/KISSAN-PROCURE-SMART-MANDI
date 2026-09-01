@@ -71,7 +71,11 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 KisanProcure Backend Server running on http://localhost:${PORT}`);
-  console.log(`🔌 Socket.IO initialized for real-time queue streaming.`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`🚀 KisanProcure Backend Server running on http://localhost:${PORT}`);
+    console.log(`🔌 Socket.IO initialized for real-time queue streaming.`);
+  });
+}
+
+module.exports = { app, server };
