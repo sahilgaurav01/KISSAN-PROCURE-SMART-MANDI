@@ -7,21 +7,10 @@
     "dev:frontend": "cd frontend && npm run dev",
     "seed": "cd backend && npm run seed",
     "setup:pg": "cd backend && npm run setup:pg",
-    "build": "cd frontend && npm install && npm run build",
     "start": "node start-all.js",
     "dev": "node start-all.js"
   },
   "keywords": ["sih", "kisanprocure", "react", "express", "sqlite", "postgresql", "socketio"],
   "author": "KisanProcure Team",
-  "license": "ISC",
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^13.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "pg": "^8.23.0",
-    "socket.io": "^4.8.3"
-  }
+  "license": "ISC"
 }
