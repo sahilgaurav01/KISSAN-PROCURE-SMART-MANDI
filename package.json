@@ -1,0 +1,16 @@
+{
+  "name": "kisanprocure-root",
+  "version": "1.0.0",
+  "description": "KisanProcure - Smart Mandi Queue & MSP Payout System (SIH Problem Statement 26032)",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "setup:pg": "cd backend && npm run setup:pg",
+    "start": "node start-all.js",
+    "dev": "node start-all.js"
+  },
+  "keywords": ["sih", "kisanprocure", "react", "express", "sqlite", "postgresql", "socketio"],
+  "author": "KisanProcure Team",
+  "license": "ISC"
+}
