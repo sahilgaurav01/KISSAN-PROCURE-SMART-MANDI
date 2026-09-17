@@ -10,9 +10,9 @@ export const CONFIG = {
   VERSION: '2.0.0',
   SIH_PROBLEM_STATEMENT: '26032',
   
-  // Supabase Credentials (Can be configured with live keys)
-  SUPABASE_URL: 'https://xyzcompany.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_key',
+  // Live Supabase Project Credentials
+  SUPABASE_URL: 'https://oxkbtztfvrspfaeprxwh.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_nj21I276_f0aHb04VTmAsQ_plc6R9qt',
   
   // Feature Flags
   ENABLE_REALTIME: true,
