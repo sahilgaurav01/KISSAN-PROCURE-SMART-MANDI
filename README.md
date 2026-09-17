@@ -1,71 +1,65 @@
 # 🌾 KisanProcure (SIH Problem Statement 26032)
-### *Smart Mandi Slot Booking, Real-Time Queue Management & Transparent MSP Disbursement System*
-#### *Pure HTML5, CSS3, & Vanilla JavaScript Edition*
+### *Modular Architecture & Code Presentation Guide*
+#### *Pure HTML5, CSS3, & Modular ES6 JavaScript*
 
 ---
 
-## 📌 Project Overview
+## 🏛️ Project Directory Structure
 
-**KisanProcure** is an end-to-end Smart Agricultural Procurement & Mandi Queue Management System built for Smart India Hackathon (Problem Statement 26032). It eliminates 6–18 hour physical mandi congestion, prevents distress selling to middlemen, and guarantees direct MSP payouts to farmers.
-
-This lightweight edition runs completely on **HTML5, CSS3, and Vanilla JavaScript** with **zero build tools, zero dependencies, and instant one-click browser execution**.
+```
+d:/sihprojecct/
+│
+├── index.html                     # Semantic Single-Page Application Layout & View Containers
+│
+├── css/
+│   ├── style.css                  # Base typography, neon indicators & responsive theme
+│   └── ticket.css                 # Digital Token Pass cutout edges & print styles
+│
+└── js/
+    ├── main.js                    # Central Application Orchestrator & View Switcher
+    │
+    ├── config/
+    │   ├── state.js               # Central State Store with LocalStorage Persistence
+    │   └── i18n.js                # English & Hindi (हिन्दी) Localization Dictionaries
+    │
+    ├── data/
+    │   └── mockData.js            # Master Seed Datasets (Centres, Crops, MSPs, Bookings)
+    │
+    └── modules/
+        ├── farmerDashboard.js     # Module 1: Upcoming Slot & Token #23 Spotlight
+        ├── slotBooking.js         # Module 2: AI Smart Slot Recommender & Booking Wizard
+        ├── liveQueue.js           # Module 3: Real-Time Mandi Queue Visualizer & Tracker
+        ├── officerDesk.js         # Module 4: Officer Control Desk ("Call Next Farmer")
+        ├── weighmentInspection.js # Module 5: Physical Weighbridge & Quality Grading Modal
+        ├── procurementStatus.js   # Module 6: 6-Step Lifecycle Timeline & Weight Slip
+        ├── paymentLedger.js       # Module 7: Direct Benefit Transfer (DBT) Ledger
+        ├── adminAnalytics.js      # Module 8: State Oversight KPIs & Chart.js Trends
+        └── notifications.js       # Module 9: Proximity Alert Toast & Notification Drawer
+```
 
 ---
 
-## 🌟 Key Modules & Features
+## 🎤 How to Explain Each File to Judges / Evaluators
 
-### 1. 👨‍🌾 Farmer Self-Service Portal
-- **1-Click Demo Persona**: Instant access as protagonist **Ramesh Kumar (`FARM1001`)** with **Token #23** (40 Quintals of Wheat).
-- **Upcoming Slot Spotlight**: Centre address, date, time window, declared crop, and token number.
-- **Live Queue Bar**: Real-time display of current serving token (#18), farmers ahead (5), and dynamic ETA counter (~28 mins).
-- **Smart Slot Booking Wizard**: 4-step wizard with Crop & Quintal picker, Mandi selector, AI Recommended low-wait slot badge, and instant Digital Pass generation with celebratory confetti!
-- **Live Queue Visualizer**: Animated horizontal token progression sequence track, searchable waiting roster, and proximity alerts.
-- **Procurement Status & Slips**: 6-step lifecycle timeline (Booked &rarr; Arrived &rarr; Weighed &rarr; Quality Approved &rarr; Payment Initiated &rarr; Paid) and official printable Certificate.
-- **DBT Payment Ledger**: Direct Benefit Transfer records with transaction IDs and bank account masks.
-
-### 2. 👮 Procurement Officer Desk
-- **Mandi Live Control Desk**: Large glowing **Current Serving Token** and **Next in Line** displays.
-- **⚡ Call Next Farmer**: Dynamically advances the queue sequence and triggers proximity alerts for upcoming farmers.
-- **⚖️ Weigh & Verify Crop Modal**:
-  - Input actual weighbridge reading (e.g. `39.5` Quintals).
-  - Select Quality Grade (`Grade A`, `Grade B`, `FAQ`).
-  - Enter Moisture Content % (Permissible limit &le; 12%).
-  - Auto-calculates official MSP payout (`₹95,787.50` @ ₹2,425/Qtl).
-  - Confirms procurement and initiates payment.
-- **Waiting Roster**: Searchable list of today's queued farmers with 1-click quick-call buttons.
-
-### 3. 🏛️ Government / State Directorate Portal
-- **6 Macro KPI Cards**: 12,450+ Farmers, 840 Bookings, 710 Served, 130 Waiting, 8,420 Qtl Procured, ₹2.04 Cr Paid.
-- **Interactive Chart.js Visualizations**: 7-Day Procurement Volume Trend line chart and Crop Distribution Donut chart.
-- **Treasury DBT Action Desk**: 1-click **[Disburse (DBT)]** action button to approve payments and credit funds into farmer bank accounts.
-
-### 4. 🌐 Dual-Language Support & Persistence
-- Instant toggle between **English** and **हिन्दी (Hindi)**.
-- Full **LocalStorage persistence**: Token advancements, weighments, bookings, and payments persist across page refreshes.
+| File Path | Functional Purpose | Key Technical Feature to Highlight |
+| :--- | :--- | :--- |
+| **[`index.html`](file:///d:/sihprojecct/index.html)** | Core SPA Shell | Houses all 8 view containers and modals without page reloading. |
+| **[`js/config/state.js`](file:///d:/sihprojecct/js/config/state.js)** | Central State Store | Reactive state store with automatic `localStorage` synchronization. |
+| **[`js/config/i18n.js`](file:///d:/sihprojecct/js/config/i18n.js)** | Localization Engine | Instant toggle between English and Hindi (`हिन्दी`). |
+| **[`js/data/mockData.js`](file:///d:/sihprojecct/js/data/mockData.js)** | Master Datasets | Pre-loads Mandi centres, government MSP benchmarks, and active tokens. |
+| **[`js/modules/farmerDashboard.js`](file:///d:/sihprojecct/js/modules/farmerDashboard.js)** | Farmer Portal | Highlights **Token #23** at Muzaffarpur Central Mandi with live ETA calculation. |
+| **[`js/modules/slotBooking.js`](file:///d:/sihprojecct/js/modules/slotBooking.js)** | Smart Booking | AI heuristic that analyzes slot load and recommends the least congested time window. |
+| **[`js/modules/liveQueue.js`](file:///d:/sihprojecct/js/modules/liveQueue.js)** | Live Queue Track | Animated horizontal sequence track showing real-time token progression. |
+| **[`js/modules/officerDesk.js`](file:///d:/sihprojecct/js/modules/officerDesk.js)** | Officer Desk | "Call Next Farmer" controller that advances tokens and triggers turn proximity alerts. |
+| **[`js/modules/weighmentInspection.js`](file:///d:/sihprojecct/js/modules/weighmentInspection.js)** | Inspection & Weighing | Weighbridge modal: records actual weight, checks moisture (&le;12%), and computes MSP payout. |
+| **[`js/modules/procurementStatus.js`](file:///d:/sihprojecct/js/modules/procurementStatus.js)** | Lifecycle Tracker | 6-step lifecycle tracker (Booked &rarr; Weighed &rarr; Quality Checked &rarr; Paid). |
+| **[`js/modules/paymentLedger.js`](file:///d:/sihprojecct/js/modules/paymentLedger.js)** | DBT Treasury | Direct Benefit Transfer payment records with transaction IDs and bank masks. |
+| **[`js/modules/adminAnalytics.js`](file:///d:/sihprojecct/js/modules/adminAnalytics.js)** | State Analytics | Macro state KPIs, Chart.js trends, and 1-click DBT disbursement approval. |
+| **[`js/modules/notifications.js`](file:///d:/sihprojecct/js/modules/notifications.js)** | Real-Time Alerts | Dispatches floating notification toasts when a farmer is within 3 tokens of their turn. |
 
 ---
 
 ## 🚀 How to Run
 
-Simply **double-click `index.html`** or open it in any web browser!
-
-Or serve using any static server:
-```bash
-# Optional: Using Python
-python -m http.server 8000
-
-# Or using npx serve
-npx serve .
-```
-
----
-
-## 📁 File Structure
-
-```
-d:/sihprojecct/
-├── index.html       # Single-Page Application with all 3 Dashboards & Modals
-├── style.css        # Custom styles, neon badges, ticket edge cutout, print styles
-├── app.js           # Vanilla JavaScript state engine, LocalStorage & Chart.js logic
-└── README.md        # Documentation
-```
+1. Simply double-click **`index.html`** to open it directly in any browser.
+2. Zero build steps, zero npm dependencies, and 100% portable!

@@ -1,0 +1,33 @@
+/* =========================================================
+   MODULE: DIGITAL PASS & PRINT STYLES (css/ticket.css)
+   ========================================================= */
+
+/* Ticket Edge Radius Cutout */
+.ticket-edge {
+  background-image: radial-gradient(circle at 0 50%, transparent 12px, white 13px),
+                    radial-gradient(circle at 100% 50%, transparent 12px, white 13px);
+}
+
+/* Print View Formatting */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-area, .printable-area * {
+    visibility: visible;
+  }
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

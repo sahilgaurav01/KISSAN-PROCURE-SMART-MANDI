@@ -1,5 +1,5 @@
 /* =========================================================
-   KISANPROCURE: CUSTOM STYLESHEET (SIH PS 26032)
+   MODULE: BASE STYLESHEET & TYPOGRAPHY (css/style.css)
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -19,13 +19,7 @@ body {
   font-family: var(--font-mono);
 }
 
-/* Digital Ticket Edge Cutout */
-.ticket-edge {
-  background-image: radial-gradient(circle at 0 50%, transparent 12px, white 13px),
-                    radial-gradient(circle at 100% 50%, transparent 12px, white 13px);
-}
-
-/* Glowing Neon Queue Badges */
+/* Glowing Neon Queue Indicators */
 .glow-amber {
   box-shadow: 0 0 25px -4px rgba(245, 158, 11, 0.45);
 }
@@ -38,7 +32,7 @@ body {
   box-shadow: 0 0 25px -4px rgba(59, 130, 246, 0.45);
 }
 
-/* Smooth Animations */
+/* Pulse & Bounce Animations */
 @keyframes pulseFast {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(0.98); }
@@ -57,7 +51,7 @@ body {
   animation: bounceSubtle 2s ease-in-out infinite;
 }
 
-/* Custom Scrollbar */
+/* Custom Sleek Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -75,25 +69,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
-
-/* Print Stylesheet for Pass & Receipts */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .printable-area, .printable-area * {
-    visibility: visible;
-  }
-  .printable-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-  }
-  .no-print {
-    display: none !important;
-  }
 }
