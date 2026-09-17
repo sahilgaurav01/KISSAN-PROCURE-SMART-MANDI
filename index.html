@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KisanProcure • Smart Mandi Queue & MSP Payout System (SIH 26032)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kisan: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            },
+            mandi: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js for Government Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti for Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- 1. TOP GOVT & 1-CLICK ROLE SWITCHER BAR   -->
+  <!-- ========================================== -->
+  <div class="bg-slate-900 text-slate-300 text-xs px-4 py-1.5 flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 z-50">
+    <div class="flex items-center space-x-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-medium text-slate-200" data-i18n="govtHeader">
+        Govt. of India • Smart India Hackathon • Problem Statement 26032
+      </span>
+    </div>
+
+    <!-- Quick Role Switcher Buttons -->
+    <div class="flex items-center space-x-2">
+      <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider hidden sm:inline" data-i18n="switchRoleLabel">⚡ Quick Persona:</span>
+      <button onclick="switchRole('farmer')" id="role-btn-farmer" class="px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-800 text-emerald-100 border border-emerald-600 transition hover:bg-emerald-700 flex items-center space-x-1">
+        <span>👨‍🌾</span><span>Farmer Ramesh</span>
+      </button>
+      <button onclick="switchRole('officer')" id="role-btn-officer" class="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1">
+        <span>👮</span><span>Officer Rajesh</span>
+      </button>
+      <button onclick="switchRole('admin')" id="role-btn-admin" class="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1">
+        <span>🏛️</span><span>Director Sanjay</span>
+      </button>
+      <button onclick="toggleLanguage()" class="px-2 py-0.5 rounded text-xs bg-slate-800 text-emerald-300 hover:bg-slate-700 transition flex items-center space-x-1 ml-1">
+        <i data-lucide="globe" class="w-3 h-3"></i>
+        <span id="lang-btn-text">हिन्दी</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN NAVIGATION HEADER                  -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        
+        <!-- Logo & Brand -->
+        <div onclick="switchTab('landing')" class="flex items-center space-x-3 cursor-pointer group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-700 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
+            <i data-lucide="sprout" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xl font-black tracking-tight text-slate-900">Kisan<span class="text-emerald-600">Procure</span></span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                SIH 26032
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium leading-none" data-i18n="appSubtitle">
+              Smart Mandi Queue & Transparent MSP Payout System
+            </p>
+          </div>
+        </div>
+
+        <!-- Dynamic Navigation Links -->
+        <nav id="nav-links" class="hidden md:flex items-center space-x-1">
+          <!-- Populated dynamically by app.js based on active role -->
+        </nav>
+
+        <!-- Right User Pill & Notification Bell -->
+        <div class="flex items-center space-x-3">
+          <!-- Notification Bell -->
+          <div class="relative">
+            <button onclick="toggleNotificationDrawer()" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition relative">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span id="notif-badge" class="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-pulse">
+                2
+              </span>
+            </button>
+          </div>
+
+          <!-- Active Persona Pill -->
+          <div class="flex items-center space-x-2.5 pl-2 border-l border-slate-200">
+            <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">
+              R
+            </div>
+            <div class="hidden lg:block text-left">
+              <div id="user-name" class="text-xs font-bold text-slate-900">Ramesh Kumar</div>
+              <div id="user-role-label" class="text-[10px] text-slate-500 font-mono">ID: FARM1001 • Farmer</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 3. FLOATING REAL-TIME ALERT BANNER         -->
+  <!-- ========================================== -->
+  <div id="floating-alert" class="hidden fixed top-20 right-4 z-50 max-w-md w-full p-4 rounded-2xl bg-slate-900 text-white shadow-2xl border border-slate-700 animate-bounce-subtle flex items-start justify-between">
+    <div class="flex items-start space-x-3">
+      <div id="alert-icon" class="mt-0.5 text-amber-400">
+        <i data-lucide="radio" class="w-5 h-5 animate-ping"></i>
+      </div>
+      <div>
+        <div id="alert-title" class="font-bold text-sm text-white">📢 YOUR TURN IS APPROACHING!</div>
+        <div id="alert-message" class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+          Current Serving Token is #22. You are Token #23 (1 farmer ahead). Please proceed to Desk 1!
+        </div>
+      </div>
+    </div>
+    <button onclick="dismissAlert()" class="p-1 text-slate-400 hover:text-white rounded-lg transition">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 4. DYNAMIC VIEW SECTIONS CONTAINER         -->
+  <!-- ========================================== -->
+  <main class="flex-1">
+
+    <!-- VIEW 1: LANDING PAGE -->
+    <section id="view-landing" class="view-section">
+      <!-- Hero -->
+      <div class="relative overflow-hidden bg-gradient-to-b from-emerald-900 via-emerald-800 to-slate-900 text-white pt-16 pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6 max-w-3xl mx-auto">
+          <div class="inline-flex items-center space-x-2 bg-emerald-500/20 border border-emerald-400/30 px-3.5 py-1.5 rounded-full text-emerald-300 text-xs font-semibold backdrop-blur-md">
+            <i data-lucide="award" class="w-3.5 h-3.5"></i>
+            <span>Smart India Hackathon • Problem Statement 26032</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight" data-i18n="heroTitle">
+            Eliminating Mandi Queues, <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-amber-300 to-emerald-200">
+              Empowering Indian Farmers
+            </span>
+          </h1>
+
+          <p class="text-sm sm:text-base text-emerald-100/90 leading-relaxed" data-i18n="heroDesc">
+            KisanProcure is a smart procurement slot booking and real-time WebSocket queue tracking platform with digital weighbridge verification and transparent Direct Benefit Transfer (DBT) MSP payments.
+          </p>
+
+          <!-- 3 Quick Launch Action Buttons -->
+          <div class="pt-4 flex flex-wrap justify-center gap-3">
+            <button onclick="switchRole('farmer'); switchTab('farmer-dashboard');" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition flex items-center space-x-2 shadow-lg shadow-emerald-500/25 hover:scale-105">
+              <span>👨‍🌾 Launch as Farmer (Ramesh)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+            <button onclick="switchRole('officer'); switchTab('officer-desk');" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition flex items-center space-x-2 shadow-lg shadow-amber-500/25 hover:scale-105">
+              <span>👮 Mandi Officer Desk (Desk 1)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+            <button onclick="switchRole('admin'); switchTab('admin-analytics');" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-bold text-xs sm:text-sm transition flex items-center space-x-2 hover:scale-105">
+              <span>🏛️ State Analytics (Director)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Pillar Cards -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-emerald-500 transition group cursor-pointer" onclick="switchRole('farmer'); switchTab('farmer-dashboard');">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="sprout" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Farmer Module</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1">Smart Booking & Live Queue</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Book slots with AI wait-time recommendation. Receive digital token passes, track live queues, and get proximity SMS/in-app alerts.
+            </p>
+            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+              <span>Token #23 Scheduled</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-amber-500 transition group cursor-pointer" onclick="switchRole('officer'); switchTab('officer-desk');">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="scale" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Officer Desk</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1">Inspection & Weighment</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Real-time Mandi Queue control desk. Call next token, record digital weighbridge inputs, assess moisture/grade, and trigger instant payout generation.
+            </p>
+            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600">
+              <span>Muzaffarpur Central Mandi</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 shadow-xl border border-slate-200 hover:border-blue-500 transition group cursor-pointer" onclick="switchRole('admin'); switchTab('admin-analytics');">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Government Portal</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1">State Analytics & DBT</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Macro governance dashboard with Recharts trends, center capacity utilization, bottleneck alerts, and 1-click Direct Benefit Transfer (DBT) disbursement.
+            </p>
+            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
+              <span>₹2.04 Cr Disbursed</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6-Step Workflow -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Zero Bottlenecks • Zero Distress Selling</span>
+          <h2 class="text-3xl font-extrabold text-slate-900 mt-1">How KisanProcure Works</h2>
+          <p class="text-xs text-slate-500 mt-2">A seamless 6-step lifecycle transforming agricultural procurement</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">01</div>
+            <div class="font-bold text-slate-900 text-xs">Farmer Books Slot</div>
+            <div class="text-[11px] text-slate-500 mt-1">Select crop, quintals & get recommended least-crowded slot.</div>
+          </div>
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">02</div>
+            <div class="font-bold text-slate-900 text-xs">Token Slip Issued</div>
+            <div class="text-[11px] text-slate-500 mt-1">Digital QR token pass with scheduled reporting window.</div>
+          </div>
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">03</div>
+            <div class="font-bold text-slate-900 text-xs">Live Queue Sync</div>
+            <div class="text-[11px] text-slate-500 mt-1">Real-time queue progression tracking with dynamic ETA.</div>
+          </div>
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">04</div>
+            <div class="font-bold text-slate-900 text-xs">Proximity Alert</div>
+            <div class="text-[11px] text-slate-500 mt-1">In-app / SMS alert: "3 farmers ahead, proceed to gate".</div>
+          </div>
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">05</div>
+            <div class="font-bold text-slate-900 text-xs">Weighed & Graded</div>
+            <div class="text-[11px] text-slate-500 mt-1">Officer records physical weight & moisture at weighbridge.</div>
+          </div>
+          <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <div class="text-2xl font-black text-emerald-600/30 mb-2">06</div>
+            <div class="font-bold text-slate-900 text-xs">Instant DBT Payout</div>
+            <div class="text-[11px] text-slate-500 mt-1">Payment automatically calculated at MSP & credited.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: FARMER DASHBOARD -->
+    <section id="view-farmer-dashboard" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <!-- Welcome Banner -->
+      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div class="flex items-center space-x-2 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-2">
+              <i data-lucide="sprout" class="w-4 h-4 text-emerald-300"></i>
+              <span data-i18n="farmerPortal">Farmer Self-Service Dashboard</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              <span data-i18n="welcome">Welcome</span>, <span id="farmer-dash-name">Ramesh Kumar</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-emerald-100/80 mt-1">
+              Farmer ID: <span class="font-mono font-bold text-white">FARM1001</span> • Village: Minapur • Dist: Muzaffarpur
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button onclick="switchTab('book-slot')" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition flex items-center space-x-2">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span data-i18n="bookSlot">Book Slot</span>
+            </button>
+            <button onclick="switchTab('live-queue')" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs border border-emerald-400/40 transition flex items-center space-x-2">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              <span data-i18n="liveQueue">Live Queue</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spotlight Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Spotlight Card -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Upcoming Procurement Slot</span>
+                <h2 class="text-lg font-bold text-slate-900 mt-0.5">Muzaffarpur Central Mandi (PC-MUZ-01)</h2>
+                <p class="text-xs text-slate-500 flex items-center space-x-1 mt-0.5">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>NH-28 Bypass Road, Muzaffarpur, Bihar</span>
+                </p>
+              </div>
+
+              <button onclick="openPassModal('BK-2026-1023')" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
+                <i data-lucide="qr-code" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Digital Pass</span>
+              </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <span class="text-[11px] text-slate-500 block">Date</span>
+                <span class="text-sm font-bold text-slate-800 mt-0.5 block">Today</span>
+              </div>
+              <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <span class="text-[11px] text-slate-500 block">Time Slot</span>
+                <span class="text-sm font-bold text-slate-800 mt-0.5 block">10:00 - 11:00 AM</span>
+              </div>
+              <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <span class="text-[11px] text-slate-500 block">Crop & Qty</span>
+                <span class="text-sm font-bold text-emerald-700 mt-0.5 block">40 Qtl (Wheat)</span>
+              </div>
+              <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-200">
+                <span class="text-[11px] font-bold text-emerald-700 uppercase block">Your Token</span>
+                <span class="text-2xl font-extrabold text-emerald-900 font-mono mt-0.5 block">#23</span>
+              </div>
+            </div>
+
+            <!-- Live Queue Bar Section -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Live Mandi Queue</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">Desk 1 • Active</span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
+                  <span class="text-xs text-slate-300 block">Current Serving Token</span>
+                  <span id="dash-live-token" class="text-3xl font-extrabold text-amber-400 font-mono mt-1 block">#18</span>
+                </div>
+                <div class="bg-white/10 rounded-xl p-3.5 border border-white/10">
+                  <span class="text-xs text-slate-300 block">Your Token Number</span>
+                  <span class="text-3xl font-extrabold text-emerald-400 font-mono mt-1 block">#23</span>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-emerald-500/20 rounded-xl p-3.5 border border-emerald-400/30 flex flex-col justify-center">
+                  <span id="dash-farmers-ahead" class="text-xs text-emerald-200 font-semibold block">5 Farmers Ahead</span>
+                  <span class="text-xs text-slate-300 mt-1 block">
+                    Est. Wait: <span id="dash-est-wait" class="font-bold text-white">~28 mins</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-5 pt-4 border-t border-white/10 flex justify-between items-center">
+                <span class="text-xs text-slate-400">Updates live when officer calls next</span>
+                <button onclick="switchTab('live-queue')" class="text-xs font-bold text-emerald-300 hover:text-emerald-200 flex items-center space-x-1">
+                  <span>Full Queue Visualizer</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & MSP -->
+        <div class="space-y-6">
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-3">
+            <h3 class="font-bold text-slate-900 text-sm mb-2">Farmer Quick Access</h3>
+            <button onclick="switchTab('book-slot')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-left transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="p-2 rounded-xl bg-emerald-100 text-emerald-700"><i data-lucide="calendar" class="w-4 h-4"></i></div>
+                <div>
+                  <div class="font-semibold text-slate-800 text-xs">Book Slot</div>
+                  <div class="text-[10px] text-slate-500">AI low-wait recommendation</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+            </button>
+            <button onclick="switchTab('live-queue')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-amber-50 border border-slate-200 text-left transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="p-2 rounded-xl bg-amber-100 text-amber-700"><i data-lucide="activity" class="w-4 h-4"></i></div>
+                <div>
+                  <div class="font-semibold text-slate-800 text-xs">Live Queue Status</div>
+                  <div class="text-[10px] text-slate-500">Real-time token sequence</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+            </button>
+            <button onclick="switchTab('procurement-status')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 text-left transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="p-2 rounded-xl bg-blue-100 text-blue-700"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+                <div>
+                  <div class="font-semibold text-slate-800 text-xs">Procurement Slips</div>
+                  <div class="text-[10px] text-slate-500">Weighment & quality results</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+            </button>
+            <button onclick="switchTab('payments')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-left transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="p-2 rounded-xl bg-emerald-100 text-emerald-700"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+                <div>
+                  <div class="font-semibold text-slate-800 text-xs">DBT Payment Status</div>
+                  <div class="text-[10px] text-slate-500">Bank ledger & txn numbers</div>
+                </div>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+            </button>
+          </div>
+
+          <!-- MSP Box -->
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/60 rounded-3xl p-6 border border-emerald-200">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block">Govt. Official Rates</span>
+            <h4 class="font-bold text-slate-900 text-sm mt-0.5">Active MSP Benchmark (2026)</h4>
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="flex justify-between py-1 border-b border-emerald-200/60">
+                <span class="text-slate-700 font-medium">Wheat (PBW-343)</span>
+                <span class="font-bold text-emerald-900 font-mono">₹2,425 / Qtl</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-emerald-200/60">
+                <span class="text-slate-700 font-medium">Paddy (Grade A)</span>
+                <span class="font-bold text-emerald-900 font-mono">₹2,320 / Qtl</span>
+              </div>
+              <div class="flex justify-between py-1">
+                <span class="text-slate-700 font-medium">Mustard / Rapeseed</span>
+                <span class="font-bold text-emerald-900 font-mono">₹5,650 / Qtl</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: BOOK SLOT WIZARD -->
+    <section id="view-book-slot" class="view-section hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div>
+        <div class="flex items-center space-x-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-1">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span>Slot Reservation Wizard</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="bookSlotTitle">
+          Book Mandi Procurement Slot
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">Select crop, quantity, preferred mandi centre, and receive your digital token pass.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Step 1 -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center justify-center">1</span>
+              <h3 class="font-bold text-slate-900 text-sm">Select Crop & Quantity</h3>
+            </div>
+            <div id="booking-crops-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <!-- Rendered via JS -->
+            </div>
+            <div class="pt-2">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Estimated Quantity (Quintals)</label>
+              <div class="flex items-center space-x-4">
+                <input type="range" min="5" max="150" step="5" value="40" id="book-qty-range" oninput="updateBookingQty(this.value)" class="flex-1 accent-emerald-600 h-2 bg-slate-200 rounded-lg cursor-pointer" />
+                <div id="book-qty-display" class="w-24 px-3 py-2 rounded-xl bg-slate-100 border border-slate-300 font-mono font-bold text-sm text-center text-slate-800">
+                  40 Qtl
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center justify-center">2</span>
+              <h3 class="font-bold text-slate-900 text-sm">Select Procurement Centre</h3>
+            </div>
+            <div id="booking-centres-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Step 3: Slots & Smart Recommendation -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center justify-center">3</span>
+                <h3 class="font-bold text-slate-900 text-sm">Select Time Slot</h3>
+              </div>
+              <input type="date" id="book-date-picker" class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 outline-none" />
+            </div>
+
+            <!-- Smart Recommendation Banner -->
+            <div class="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center space-x-1.5 text-amber-300 text-xs font-bold uppercase tracking-wider">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  <span>AI Smart Slot Recommendation</span>
+                </div>
+                <div class="text-base font-bold mt-1">11:00 AM - 12:00 PM Window</div>
+                <div class="text-xs text-emerald-100/90 mt-0.5">Optimal low-traffic window with minimal queue wait (~15 min wait).</div>
+              </div>
+              <button onclick="confirmSlotBooking('11:00 AM - 12:00 PM')" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-sm whitespace-nowrap">
+                ⚡ Book Recommended
+              </button>
+            </div>
+
+            <div id="booking-slots-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Summary Box -->
+        <div>
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-5 sticky top-24">
+            <h3 class="font-bold text-slate-900 text-base">Booking Summary</h3>
+            <div class="space-y-3 text-xs border-b border-slate-100 pb-4">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Farmer:</span>
+                <span class="font-semibold text-slate-800">Ramesh Kumar (FARM1001)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Crop:</span>
+                <span id="summary-crop" class="font-semibold text-slate-800">Wheat (PBW-343)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Quantity:</span>
+                <span id="summary-qty" class="font-bold text-emerald-700">40 Quintals</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">MSP Benchmark:</span>
+                <span id="summary-msp" class="font-semibold text-slate-800">₹2,425/Qtl</span>
+              </div>
+            </div>
+
+            <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-200 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-emerald-800 font-bold uppercase block">Est. Payout Value</span>
+                <span id="summary-payout" class="text-lg font-extrabold text-emerald-950 font-mono">₹97,000.00</span>
+              </div>
+              <i data-lucide="scale" class="w-6 h-6 text-emerald-600"></i>
+            </div>
+
+            <button onclick="confirmSlotBooking()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition flex items-center justify-center space-x-2">
+              <span>Confirm & Generate Token Pass</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: LIVE QUEUE VISUALIZER -->
+    <section id="view-live-queue" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-1">
+            <i data-lucide="radio" class="w-4 h-4 text-emerald-500 animate-pulse"></i>
+            <span>Real-Time Mandi Queue Stream</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="liveQueueTitle">
+            Live Queue Visualizer
+          </h1>
+          <p class="text-xs text-slate-500 mt-1">Live token progression synced with inspection weighbridge.</p>
+        </div>
+
+        <select id="queue-centre-select" onchange="changeQueueCentre(this.value)" class="p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-800 outline-none">
+          <option value="1">Muzaffarpur Central Mandi (PC-MUZ-01)</option>
+          <option value="2">Kanti Regional APMC Yard (PC-MUZ-02)</option>
+          <option value="3">Bochahan Kisan Mandi (PC-MUZ-03)</option>
+        </select>
+      </div>
+
+      <!-- Big Board -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-5 mb-8">
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
+            <div>
+              <h2 class="text-lg font-bold text-white">Muzaffarpur Central Mandi</h2>
+              <span class="text-xs text-slate-400 font-mono">Desk 1 • Active Weighbridge</span>
+            </div>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold font-mono">
+            LIVE SYNC
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-slate-800/80 rounded-2xl p-6 border-2 border-amber-500/40 text-center flex flex-col justify-between shadow-lg shadow-amber-500/10">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400 block mb-1">CURRENT SERVING TOKEN</span>
+              <div id="live-big-serving" class="text-6xl sm:text-7xl font-black font-mono text-amber-400 tracking-tighter my-3 animate-pulse-fast">#18</div>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 text-xs border border-slate-700 text-left">
+              <div id="live-serving-farmer" class="font-bold text-white text-sm">Manoj Paswan</div>
+              <div id="live-serving-crop" class="text-slate-400 text-[11px] mt-0.5">Wheat • 45.0 Qtl</div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/60 rounded-2xl p-6 border border-slate-700 text-center flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 block mb-1">NEXT IN LINE</span>
+              <div id="live-big-next" class="text-5xl sm:text-6xl font-black font-mono text-emerald-400 tracking-tighter my-3">#19</div>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 text-xs border border-slate-700 text-left">
+              <div id="live-next-farmer" class="font-bold text-white text-sm">Suresh Singh</div>
+              <div class="text-[10px] text-amber-400 font-semibold mt-0.5">Please be near Mandi Gate</div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-emerald-950 to-slate-900 rounded-2xl p-6 border border-emerald-500/40 text-center flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-300 block mb-1">YOUR POSITION</span>
+              <div class="text-5xl sm:text-6xl font-black font-mono text-white tracking-tighter my-3">#23</div>
+            </div>
+            <div class="bg-emerald-900/50 rounded-xl p-3.5 text-xs border border-emerald-500/30 text-left space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-emerald-200">Farmers Ahead:</span>
+                <span id="live-pos-ahead" class="font-bold text-white font-mono">5</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-emerald-200">Estimated Wait:</span>
+                <span id="live-pos-wait" class="font-bold text-amber-300 font-mono">~28 mins</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Token Progression Strip -->
+        <div class="mt-10 pt-6 border-t border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Sequence Track</span>
+            <span class="text-xs text-slate-400 font-mono">Avg turnaround: 5.5 min</span>
+          </div>
+          <div id="queue-strip-container" class="flex items-center space-x-3 overflow-x-auto pb-4">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Queue Table -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+        <h3 class="font-bold text-slate-900 text-base mb-4">Mandi Waiting Roster</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                <th class="pb-3">Token #</th>
+                <th class="pb-3">Farmer Name</th>
+                <th class="pb-3">Village</th>
+                <th class="pb-3">Crop</th>
+                <th class="pb-3">Declared Qty</th>
+                <th class="pb-3">Queue Pos</th>
+                <th class="pb-3">Estimated ETA</th>
+              </tr>
+            </thead>
+            <tbody id="queue-roster-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: PROCUREMENT STATUS TIMELINE -->
+    <section id="view-procurement-status" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div>
+        <div class="flex items-center space-x-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-1">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Procurement & Weighment Lifecycle</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="procurementStatusTitle">
+          Procurement Status & Slips
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">Track end-to-end verification, physical weighbridge readings, and official payment receipts.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="space-y-4">
+          <h3 class="font-bold text-slate-900 text-sm">Procurement Records</h3>
+          <div id="procurements-list" class="space-y-3">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <div class="lg:col-span-2">
+          <div id="procurement-detail-card" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-8">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 6: PAYMENT LEDGER -->
+    <section id="view-payments" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2 text-emerald-600 text-xs font-bold uppercase tracking-wider mb-1">
+            <i data-lucide="credit-card" class="w-4 h-4"></i>
+            <span>Direct Benefit Transfer (DBT) Ledger</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="paymentsTitle">
+            Procurement Payouts & DBT Status
+          </h1>
+          <p class="text-xs text-slate-500 mt-1">Official government transfer records credited directly to registered bank account.</p>
+        </div>
+        <div class="bg-slate-100 rounded-2xl px-4 py-2 text-xs border border-slate-200">
+          <span class="text-slate-500 block text-[10px]">Registered Bank:</span>
+          <span class="font-bold text-slate-800">SBI-XXXX-4589 (IFSC: SBIN0001234)</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white rounded-3xl p-6 shadow-md">
+          <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider">Total Received</span>
+          <div id="farmer-total-paid" class="text-2xl sm:text-3xl font-black font-mono text-white mt-3">₹4,28,450.00</div>
+          <span class="text-[11px] text-emerald-200/80 mt-1 block">Credited via DBT</span>
+        </div>
+        <div class="bg-gradient-to-br from-amber-700 to-amber-900 text-white rounded-3xl p-6 shadow-md">
+          <span class="text-xs font-bold text-amber-200 uppercase tracking-wider">In Processing</span>
+          <div id="farmer-total-processing" class="text-2xl sm:text-3xl font-black font-mono text-white mt-3">₹95,787.50</div>
+          <span class="text-[11px] text-amber-100/80 mt-1 block">Under treasury clearance</span>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Consignments</span>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-3">5 Consignments</div>
+          <span class="text-[11px] text-slate-500 mt-1 block">Procured at official MSP</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h3 class="font-bold text-slate-900 text-base">Transaction & Payout History</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                <th class="pb-3">Transaction ID</th>
+                <th class="pb-3">Crop</th>
+                <th class="pb-3">Actual Quantity</th>
+                <th class="pb-3">MSP Rate</th>
+                <th class="pb-3">Total Amount</th>
+                <th class="pb-3">Status</th>
+              </tr>
+            </thead>
+            <tbody id="payment-ledger-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 7: OFFICER CONTROL DESK -->
+    <section id="view-officer-desk" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2 text-amber-600 text-xs font-bold uppercase tracking-wider mb-1">
+            <i data-lucide="radio" class="w-4 h-4 text-amber-500 animate-pulse"></i>
+            <span>Mandi Live Queue Control</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="officerPortal">
+            Muzaffarpur Central Mandi (Desk 1)
+          </h1>
+          <p class="text-xs text-slate-500 mt-1">Officer on Duty: <strong class="text-slate-800">Rajesh Sharma (Inspector)</strong> • Active Weighbridge & Moisture Lab</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-400">ACTIVE WEIGHBRIDGE DESK</span>
+              <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold border border-emerald-500/30">LIVE ENGINE</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div class="bg-slate-800/80 rounded-2xl p-5 border-2 border-amber-500/40 text-center">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-400 block">CURRENT SERVING TOKEN</span>
+                <div id="officer-current-token" class="text-6xl font-black font-mono text-amber-400 tracking-tight my-2 animate-pulse-fast">#18</div>
+                <div id="officer-serving-details" class="text-left bg-slate-900 rounded-xl p-3 border border-slate-700 text-xs space-y-1">
+                  <div id="officer-farmer-name" class="font-bold text-white text-sm">Manoj Paswan</div>
+                  <div id="officer-crop-info" class="text-emerald-400 font-semibold text-xs">Wheat • 45.0 Qtl</div>
+                </div>
+              </div>
+
+              <div class="bg-slate-800/50 rounded-2xl p-5 border border-slate-700 text-center flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">NEXT IN LINE</span>
+                  <div id="officer-next-token" class="text-5xl font-black font-mono text-emerald-400 tracking-tight my-2">#19</div>
+                </div>
+                <div id="officer-next-details" class="text-left bg-slate-900 rounded-xl p-3 border border-slate-700 text-xs space-y-1">
+                  <div id="officer-next-name" class="font-bold text-white">Suresh Singh</div>
+                  <div class="text-amber-300 font-semibold text-[10px]">Scheduled for current slot</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Officer Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <button onclick="officerCallNext()" class="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition shadow-lg shadow-amber-500/25 flex items-center justify-center space-x-2">
+                <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
+                <span data-i18n="callNext">⚡ CALL NEXT FARMER</span>
+              </button>
+              <button onclick="openWeighModal()" class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm transition shadow-lg shadow-emerald-600/25 flex items-center justify-center space-x-2">
+                <i data-lucide="scale" class="w-5 h-5"></i>
+                <span data-i18n="verifyCrop">⚖️ WEIGH & VERIFY CROP</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Waiting Queue List -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h3 class="font-bold text-slate-900 text-base">Waiting Farmers Queue (Click token to call)</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                    <th class="pb-3">Token #</th>
+                    <th class="pb-3">Farmer</th>
+                    <th class="pb-3">Crop</th>
+                    <th class="pb-3">Quantity</th>
+                    <th class="pb-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="officer-waiting-table" class="divide-y divide-slate-100 font-medium">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Stats Summary -->
+        <div class="space-y-6">
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600 block">Today's Mandi Summary</span>
+            <h3 class="font-extrabold text-slate-900 text-lg">Operational Throughput</h3>
+            <div class="space-y-3 pt-2">
+              <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-slate-500 text-xs block">Farmers Served Today</span>
+                  <span id="officer-served-count" class="text-2xl font-black text-slate-900 font-mono mt-0.5 block">17</span>
+                </div>
+                <i data-lucide="users" class="w-7 h-7 text-emerald-600"></i>
+              </div>
+              <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-slate-500 text-xs block">Wheat / Grain Procured</span>
+                  <span id="officer-total-qtl" class="text-2xl font-black text-emerald-700 font-mono mt-0.5 block">694.5 Qtl</span>
+                </div>
+                <i data-lucide="scale" class="w-7 h-7 text-amber-600"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 8: ADMIN & GOVT ANALYTICS -->
+    <section id="view-admin-analytics" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div>
+        <div class="flex items-center space-x-2 text-blue-600 text-xs font-bold uppercase tracking-wider mb-1">
+          <i data-lucide="building-2" class="w-4 h-4"></i>
+          <span>State Directorate of Agricultural Procurement & Analytics</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" data-i18n="adminPortal">
+          Government Oversight & DBT Portal
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">Real-time state monitoring of mandi queues, procurement volumes, and MSP disbursements.</p>
+      </div>
+
+      <!-- 6 Macro KPI Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Farmers</span>
+          <div class="text-2xl font-black font-mono text-slate-900 mt-2">12,450</div>
+          <span class="text-[10px] text-emerald-600 font-semibold mt-1 block">Registered in State</span>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Today's Bookings</span>
+          <div class="text-2xl font-black font-mono text-blue-700 mt-2">840</div>
+          <span class="text-[10px] text-slate-400 mt-1 block">Across 4 centres</span>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Farmers Served</span>
+          <div class="text-2xl font-black font-mono text-emerald-700 mt-2">710</div>
+          <span class="text-[10px] text-emerald-600 font-semibold mt-1 block">Weighed & Verified</span>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Waiting in Queue</span>
+          <div class="text-2xl font-black font-mono text-amber-600 mt-2">130</div>
+          <span class="text-[10px] text-amber-600 font-semibold mt-1 block">In live queues</span>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Procurement</span>
+          <div class="text-2xl font-black font-mono text-emerald-800 mt-2">8,420 Qtl</div>
+          <span class="text-[10px] text-slate-500 mt-1 block">Total Quintals</span>
+        </div>
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-sm border border-slate-800">
+          <span class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider block">MSP Payments</span>
+          <div class="text-2xl font-black font-mono text-white mt-2">₹2.04 Cr</div>
+          <span class="text-[10px] text-emerald-400 font-semibold mt-1 block">Disbursed via DBT</span>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+          <h3 class="font-bold text-slate-900 text-base">Daily Procurement Trend (Last 7 Days)</h3>
+          <div class="h-64">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+          <h3 class="font-bold text-slate-900 text-base">Procurement by Commodity</h3>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="cropPieChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Treasury DBT Disbursement Action Table -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h3 class="font-bold text-slate-900 text-base">Direct Benefit Transfer (DBT) Treasury Desk</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                <th class="pb-3">Txn Ref #</th>
+                <th class="pb-3">Farmer Name</th>
+                <th class="pb-3">Bank Account</th>
+                <th class="pb-3">Crop & Weighed Qty</th>
+                <th class="pb-3">MSP Amount</th>
+                <th class="pb-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-dbt-table" class="divide-y divide-slate-100 font-medium">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 5. MODALS & DRAWERS                        -->
+  <!-- ========================================== -->
+
+  <!-- DIGITAL PASS MODAL -->
+  <div id="modal-digital-pass" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 printable-area">
+      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 text-white p-5 relative">
+        <button onclick="closePassModal()" class="no-print absolute top-4 right-4 p-1 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <div class="flex items-center space-x-2 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-1">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>Ministry of Agriculture & Farmers Welfare</span>
+        </div>
+        <h2 class="text-xl font-bold">Kisan Digital Entry Pass</h2>
+        <p class="text-xs text-emerald-100/80">Authorized Procurement Token Slip</p>
+      </div>
+
+      <div class="px-6 pt-5 text-center">
+        <div class="inline-block bg-emerald-50 border-2 border-emerald-500 rounded-2xl px-6 py-3 shadow-inner">
+          <span class="text-xs uppercase font-bold text-emerald-700 tracking-wider block">Token Number</span>
+          <span id="pass-token-num" class="text-4xl font-extrabold text-emerald-900 font-mono tracking-tight">#23</span>
+        </div>
+        <div class="mt-2 text-xs font-mono text-slate-500">
+          Booking ID: <span id="pass-booking-id" class="font-semibold text-slate-700">BK-2026-1023</span>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-3 text-xs">
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Farmer Name:</span>
+            <span id="pass-farmer-name" class="font-semibold text-slate-800">Ramesh Kumar (FARM1001)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Centre:</span>
+            <span class="font-semibold text-slate-800">Muzaffarpur Central Mandi</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Time Window:</span>
+            <span class="font-semibold text-slate-800">10:00 - 11:00 AM</span>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50/60 rounded-xl p-3.5 border border-emerald-200 space-y-2">
+          <div class="flex justify-between">
+            <span class="text-emerald-800 font-medium">Declared Crop:</span>
+            <span id="pass-crop-name" class="font-bold text-emerald-950">Wheat (40 Quintals)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-emerald-800 font-medium">Official MSP:</span>
+            <span id="pass-msp-rate" class="font-bold text-emerald-950">₹2,425 / Quintal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex space-x-3 no-print">
+        <button onclick="window.print()" class="flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition shadow-sm">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print / Save Pass</span>
+        </button>
+        <button onclick="closePassModal()" class="px-5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEIGHMENT & QUALITY MODAL -->
+  <div id="modal-weighment" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div class="bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white p-5 relative">
+        <button onclick="closeWeighModal()" class="absolute top-4 right-4 p-1 rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <div class="flex items-center space-x-2 text-amber-200 text-xs font-semibold uppercase tracking-wider mb-1">
+          <i data-lucide="scale" class="w-4 h-4"></i>
+          <span>Inspection & Weighment Desk</span>
+        </div>
+        <h2 class="text-xl font-bold">Physical Crop Verification</h2>
+        <p id="weigh-header-info" class="text-xs text-amber-100/90">Token #18 • Manoj Paswan (FARM1007)</p>
+      </div>
+
+      <form onsubmit="submitWeighment(event)" class="p-6 space-y-4 text-xs">
+        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 grid grid-cols-2 gap-2">
+          <div>
+            <span class="text-slate-500 block">Declared Crop:</span>
+            <span id="weigh-crop-name" class="font-bold text-slate-800 text-sm">Wheat</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block">Official MSP Rate:</span>
+            <span id="weigh-msp-rate" class="font-bold text-emerald-700 text-sm">₹2,425/Qtl</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-800 mb-1">Physical Weighbridge Reading (Quintals) *</label>
+          <div class="relative">
+            <input type="number" step="0.1" min="0.1" required id="weigh-actual-qty" oninput="calculateWeighPayout()" value="39.5" class="w-full pl-3.5 pr-16 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 outline-none focus:border-amber-500" />
+            <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold">QTL</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-800 mb-1">Quality Grade</label>
+            <select id="weigh-quality-grade" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-800 outline-none bg-white">
+              <option value="Grade A">Grade A (Premium)</option>
+              <option value="Grade B">Grade B (Standard)</option>
+              <option value="Fair Average">FAQ (Fair Average)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-800 mb-1">Moisture Content (%)</label>
+            <input type="number" step="0.1" min="5" max="25" value="11.8" id="weigh-moisture" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-900 outline-none" />
+            <span class="text-[10px] text-emerald-600 block mt-0.5">✓ Permissible limit (&le;12%)</span>
+          </div>
+        </div>
+
+        <!-- Calculated Payout -->
+        <div class="bg-gradient-to-r from-emerald-50 to-emerald-100/80 rounded-xl p-4 border border-emerald-200 flex items-center justify-between">
+          <div>
+            <span class="text-emerald-800 text-[11px] font-semibold block">Calculated MSP Payout:</span>
+            <span id="weigh-payout-formula" class="text-xs text-slate-600">39.5 Qtl &times; ₹2,425/Qtl</span>
+          </div>
+          <div class="text-right">
+            <span id="weigh-payout-total" class="text-xl font-extrabold text-emerald-900 font-mono">₹95,787.50</span>
+            <span class="block text-[10px] text-emerald-700 font-medium">Auto-initiates DBT</span>
+          </div>
+        </div>
+
+        <div class="flex space-x-3 pt-2">
+          <button type="submit" class="flex-1 py-2.5 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-sm flex items-center justify-center space-x-2">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Confirm Procurement & Pay</span>
+          </button>
+          <button type="button" onclick="closeWeighModal()" class="px-5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION DRAWER -->
+  <div id="drawer-notifications" class="hidden fixed right-4 top-16 z-50 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3">
+    <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+      <span class="font-bold text-slate-800 text-xs">Notifications & Queue Alerts</span>
+      <button onclick="markAllNotificationsRead()" class="text-[11px] text-emerald-600 font-semibold hover:underline">Mark all read</button>
+    </div>
+    <div id="notif-drawer-list" class="max-h-80 overflow-y-auto divide-y divide-slate-50 text-xs">
+      <!-- Rendered via JS -->
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 6. FOOTER                                  -->
+  <!-- ========================================== -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto no-print">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-slate-800">KisanProcure</span>
+        <span>• Smart India Hackathon 2024-26 (Problem 26032)</span>
+      </div>
+      <div>
+        Built with HTML5, CSS3, JavaScript & LocalStorage
+      </div>
+    </div>
+  </footer>
+
+  <!-- App JavaScript Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,124 +1,71 @@
 # 🌾 KisanProcure (SIH Problem Statement 26032)
 ### *Smart Mandi Slot Booking, Real-Time Queue Management & Transparent MSP Disbursement System*
+#### *Pure HTML5, CSS3, & Vanilla JavaScript Edition*
 
 ---
 
-## 📌 Executive Summary & Problem Overview
+## 📌 Project Overview
 
-In traditional Indian agricultural mandis, unorganized farmer arrivals cause 6–18 hour physical traffic bottlenecks, distress selling to middlemen, and lack of real-time visibility on procurement progress and MSP payouts.
+**KisanProcure** is an end-to-end Smart Agricultural Procurement & Mandi Queue Management System built for Smart India Hackathon (Problem Statement 26032). It eliminates 6–18 hour physical mandi congestion, prevents distress selling to middlemen, and guarantees direct MSP payouts to farmers.
 
-**KisanProcure** addresses SIH Problem Statement 26032 by providing:
-1. **Intelligent Slot Booking & Token Allocation**: Farmers reserve time slots with AI wait-time recommendation to balance traffic loads across mandi centres.
-2. **Real-Time WebSocket Queue Tracking**: Powered by Socket.IO, farmers view their live queue position, estimated wait countdown, and receive proximity arrival alerts.
-3. **Digital Weighbridge & Quality Grading**: Procurement officers verify farmer tokens, input actual weights (quintals), and test moisture content within permissible limits (&le;12%).
-4. **Automated Direct Benefit Transfer (DBT)**: Instant payout calculation at official MSP rates (₹2,425/Qtl for Wheat) with transaction generation and treasury approval.
-5. **Government Oversight & Analytics**: High-level KPI monitoring with interactive Recharts trends, centre performance benchmarking, and bottleneck alerts.
+This lightweight edition runs completely on **HTML5, CSS3, and Vanilla JavaScript** with **zero build tools, zero dependencies, and instant one-click browser execution**.
 
 ---
 
-## 🏛️ System Architecture
+## 🌟 Key Modules & Features
 
-```mermaid
-graph TD
-    subgraph Clients["Frontend Layer (React 19 + Tailwind CSS + Recharts)"]
-        F[Farmer Self-Service Portal]
-        O[Procurement Officer Desk]
-        A[State Director / Admin Portal]
-    end
+### 1. 👨‍🌾 Farmer Self-Service Portal
+- **1-Click Demo Persona**: Instant access as protagonist **Ramesh Kumar (`FARM1001`)** with **Token #23** (40 Quintals of Wheat).
+- **Upcoming Slot Spotlight**: Centre address, date, time window, declared crop, and token number.
+- **Live Queue Bar**: Real-time display of current serving token (#18), farmers ahead (5), and dynamic ETA counter (~28 mins).
+- **Smart Slot Booking Wizard**: 4-step wizard with Crop & Quintal picker, Mandi selector, AI Recommended low-wait slot badge, and instant Digital Pass generation with celebratory confetti!
+- **Live Queue Visualizer**: Animated horizontal token progression sequence track, searchable waiting roster, and proximity alerts.
+- **Procurement Status & Slips**: 6-step lifecycle timeline (Booked &rarr; Arrived &rarr; Weighed &rarr; Quality Approved &rarr; Payment Initiated &rarr; Paid) and official printable Certificate.
+- **DBT Payment Ledger**: Direct Benefit Transfer records with transaction IDs and bank account masks.
 
-    subgraph Backend["Backend Layer (Node.js + Express.js)"]
-        Auth[JWT Role-Based Auth]
-        Router[REST API Controllers]
-        WS[Socket.IO Real-Time Queue Room]
-        AI[Smart Slot & Wait Estimator]
-    end
+### 2. 👮 Procurement Officer Desk
+- **Mandi Live Control Desk**: Large glowing **Current Serving Token** and **Next in Line** displays.
+- **⚡ Call Next Farmer**: Dynamically advances the queue sequence and triggers proximity alerts for upcoming farmers.
+- **⚖️ Weigh & Verify Crop Modal**:
+  - Input actual weighbridge reading (e.g. `39.5` Quintals).
+  - Select Quality Grade (`Grade A`, `Grade B`, `FAQ`).
+  - Enter Moisture Content % (Permissible limit &le; 12%).
+  - Auto-calculates official MSP payout (`₹95,787.50` @ ₹2,425/Qtl).
+  - Confirms procurement and initiates payment.
+- **Waiting Roster**: Searchable list of today's queued farmers with 1-click quick-call buttons.
 
-    subgraph Storage["Storage Layer"]
-        DB[(Dual-Mode DB: SQLite / PostgreSQL)]
-        Seed[Auto Realistic Seeder]
-    end
+### 3. 🏛️ Government / State Directorate Portal
+- **6 Macro KPI Cards**: 12,450+ Farmers, 840 Bookings, 710 Served, 130 Waiting, 8,420 Qtl Procured, ₹2.04 Cr Paid.
+- **Interactive Chart.js Visualizations**: 7-Day Procurement Volume Trend line chart and Crop Distribution Donut chart.
+- **Treasury DBT Action Desk**: 1-click **[Disburse (DBT)]** action button to approve payments and credit funds into farmer bank accounts.
 
-    F <-->|REST + WebSockets| Backend
-    O <-->|REST + WebSockets| Backend
-    A <-->|REST + WebSockets| Backend
-    Backend <--> DB
-```
+### 4. 🌐 Dual-Language Support & Persistence
+- Instant toggle between **English** and **हिन्दी (Hindi)**.
+- Full **LocalStorage persistence**: Token advancements, weighments, bookings, and payments persist across page refreshes.
 
 ---
 
-## 🚀 Quick Start Guide (One Command)
+## 🚀 How to Run
 
-### Prerequisites
-- Node.js (v18+)
-- npm (v9+)
+Simply **double-click `index.html`** or open it in any web browser!
 
-### 1. Launch Both Backend & Frontend
-Run the following command from the root directory:
+Or serve using any static server:
 ```bash
-npm run dev
+# Optional: Using Python
+python -m http.server 8000
+
+# Or using npx serve
+npx serve .
 ```
-This concurrently starts:
-- 🚀 **Backend API & WebSockets**: `http://localhost:5000`
-- 🌐 **Frontend Client**: `http://localhost:5173`
 
 ---
 
-## 👥 Demo Personas & Pre-Seeded Accounts
+## 📁 File Structure
 
-The application includes a **1-Click Demo Persona Bar** at the top of the screen:
-
-| Persona | Name | Role | Pre-Loaded State |
-| :--- | :--- | :--- | :--- |
-| **👨‍🌾 Farmer** | Ramesh Kumar (`9876543210` / `farmer123`) | `farmer` | Has booked **Token #23** for 40 Quintals of Wheat at Muzaffarpur Central Mandi (5 farmers ahead). |
-| **👮 Officer** | Rajesh Sharma (`9876543220` / `officer123`) | `officer` | Managing Desk 1 at Muzaffarpur Central Mandi. Can call next tokens, weigh crops, and grade quality. |
-| **🏛️ Admin** | Dr. Sanjay Meena (`9999999999` / `admin123`) | `admin` | State-level oversight, Recharts analytics, centre monitoring, and 1-click DBT disbursement. |
-
----
-
-## 🎬 Step-by-Step Hackathon Presentation Script (Ramesh Kumar Journey)
-
-1. **Farmer Experience**:
-   - Open `http://localhost:5173` and click **"👨‍🌾 Launch as Ramesh Kumar"**.
-   - Review **Token #23** in the Upcoming Slot Spotlight.
-   - Click **"Live Queue Status"** to view real-time WebSocket queue tracking (Current Token: `#18`, Ramesh: `#23`, ETA: ~28 mins).
-2. **Procurement Officer Experience (Open in 2nd Tab/Window)**:
-   - In a second tab or window, click **"⚡ Quick Role Switch &rarr; 👮 Rajesh Sharma (Officer)"**.
-   - On the Live Desk Control, click **"⚡ CALL NEXT FARMER"** (or Call Token #23).
-   - Notice the **instant real-time update in Tab 1** without refreshing the page!
-   - Click **"⚖️ WEIGH & VERIFY CROP"**:
-     - Actual Weighbridge Reading: `39.5` Quintals
-     - Quality Grade: `Grade A (Premium)`
-     - Moisture Content: `11.8%` (Permissible)
-     - Calculated MSP Payout: `₹95,787.50` (@ ₹2,425/Qtl)
-     - Click **"Confirm Procurement & Pay"**.
-3. **Farmer Payout Notification**:
-   - Switch back to Tab 1: Notice the instant celebratory toast alert: *"🌾 Procurement Verified & Payment Initiated!"*
-   - Navigate to **"My Bookings / Procurement Status"** to view the full 6-step lifecycle timeline and official printable certificate.
-4. **Government Analytics & DBT Clearance**:
-   - Switch to **"🏛️ Dr. Sanjay Meena (Director)"**.
-   - Inspect macro KPIs (`12,450+` registered farmers, `8,420.5 Qtl` procured, `₹2.04 Cr` payouts).
-   - Under **Direct Benefit Transfer (DBT) Disbursements**, click **"⚡ Disburse (DBT)"** to complete the final transaction.
-
----
-
-## 📊 Database Entities
-
-1. `users`: Role-based authentication credentials (`farmer`, `officer`, `admin`).
-2. `farmers`: Farmer ID (`FARM1001`), landholding, village, masked bank/aadhaar.
-3. `procurement_centres`: Mandi location, capacity, coordinates, active token.
-4. `crops`: Supported agricultural commodities with MSP benchmark rates.
-5. `slots`: Time intervals (e.g. `10:00 - 11:00 AM`) with capacity reservation counters.
-6. `bookings`: Assigned token numbers, status (`booked`, `in_progress`, `completed`).
-7. `queue_state`: Real-time serving token index per centre.
-8. `procurements`: Physical weighbridge readings, quality grades, moisture %.
-9. `payments`: MSP disbursement records, transaction IDs (`TXN-XXXX`), DBT state.
-10. `notifications`: In-app proximity alerts and SMS payload logs.
-
----
-
-## 🛠️ Technology Stack
-
-- **Frontend**: React 19, Tailwind CSS v4, Lucide React, Recharts, Canvas-Confetti, Axios, Socket.IO Client.
-- **Backend**: Node.js, Express.js, Socket.IO, JWT, BcryptJS, Better-SQLite3 / PostgreSQL adapter.
-- **Languages**: JavaScript (Fullstack), SQL, HTML5/CSS3.
-- **UI Localization**: English & Hindi (हिन्दी) dual-language support.
+```
+d:/sihprojecct/
+├── index.html       # Single-Page Application with all 3 Dashboards & Modals
+├── style.css        # Custom styles, neon badges, ticket edge cutout, print styles
+├── app.js           # Vanilla JavaScript state engine, LocalStorage & Chart.js logic
+└── README.md        # Documentation
+```
