@@ -63,25 +63,59 @@ export function handlePersonaLogin(role) {
   showToast('✓ Signed In Successfully', `Welcome, ${user.fullName} (${role.toUpperCase()})`);
 }
 
-export function handleInAppLogin(e) {
+export async function handleInAppLogin(e) {
   e.preventDefault();
   const phone = document.getElementById('inapp-login-phone').value.trim();
   const otpContainer = document.getElementById('inapp-otp-container');
+  const otpInput = document.getElementById('inapp-login-otp');
   const btn = document.getElementById('inapp-login-btn');
 
   if (!isOtpSent) {
+    if (phone.length < 10) {
+      showToast('⚠️ Invalid Number', 'Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span>Sending OTP...</span>';
+    
+    const res = await AuthService.sendOtp(phone);
     isOtpSent = true;
+    btn.disabled = false;
+
     otpContainer.classList.remove('hidden');
+    if (otpInput) otpInput.value = res.otp; // Auto-fill for convenience while allowing edits
+
     btn.innerHTML = '<span>Verify OTP & Sign In</span><i data-lucide="check" class="w-4 h-4"></i>';
     if (window.lucide) window.lucide.createIcons();
+
+    showToast('📱 SMS Received on Phone', `Your KisanProcure OTP code is: ${res.otp}`);
     return;
   }
 
-  let role = 'farmer';
-  if (phone === '9876543200') role = 'officer';
-  else if (phone === '9876543201') role = 'admin';
+  // Verify OTP
+  const enteredOtp = (otpInput?.value || '').trim();
+  btn.disabled = true;
+  btn.innerHTML = '<span>Verifying OTP...</span>';
 
-  handlePersonaLogin(role);
+  const verifyRes = await AuthService.verifyOtp(phone, enteredOtp);
+  btn.disabled = false;
+
+  if (!verifyRes.success) {
+    btn.innerHTML = '<span>Verify OTP & Sign In</span><i data-lucide="check" class="w-4 h-4"></i>';
+    showToast('❌ Authentication Failed', verifyRes.message || 'Incorrect OTP code.');
+    return;
+  }
+
+  const user = verifyRes.session;
+  updateNavbarProfile(user);
+  updateRoleButtons(user.role);
+
+  if (user.role === 'farmer') switchTab('farmer-dashboard');
+  else if (user.role === 'officer') switchTab('officer-desk');
+  else if (user.role === 'admin') switchTab('admin-analytics');
+
+  showToast('✓ Login Verified', `Welcome back, ${user.fullName}!`);
 }
 
 export function handleLogout() {
