@@ -1,40 +1,49 @@
 -- =========================================================
--- KISANPROCURE ROW LEVEL SECURITY (RLS) (supabase/policies.sql)
--- Fine-grained authorization rules for Farmers, Officers & Admins
+-- KISANPROCURE ROW LEVEL SECURITY POLICIES (supabase/policies.sql)
+-- Fine-grained RLS Rules for the 9 Tables (SIH PS 26032)
 -- =========================================================
 
--- Enable RLS on core tables
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE farmers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mandis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crops ENABLE ROW LEVEL SECURITY;
+ALTER TABLE slots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE weighments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payments_dbt ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE queue ENABLE ROW LEVEL SECURITY;
+ALTER TABLE procurements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 
--- 1. PUBLIC READ ON MANDIS & CROPS
-CREATE POLICY "Public centres read" ON procurement_centres FOR SELECT USING (true);
-CREATE POLICY "Public crops read" ON crops_master FOR SELECT USING (true);
-CREATE POLICY "Public slots read" ON booking_slots FOR SELECT USING (true);
+-- 1. PUBLIC READ POLICIES (Master Lookups)
+CREATE POLICY "Public mandis read" ON mandis FOR SELECT USING (true);
+CREATE POLICY "Public crops read" ON crops FOR SELECT USING (true);
+CREATE POLICY "Public slots read" ON slots FOR SELECT USING (true);
+CREATE POLICY "Public queue view" ON queue FOR SELECT USING (true);
 
--- 2. FARMER POLICIES
-CREATE POLICY "Farmers read own profile" ON users FOR SELECT 
-    USING (auth.uid() = id OR role = 'admin' OR role = 'officer');
+-- 2. PROFILES & FARMERS POLICIES
+CREATE POLICY "Users read own profile" ON profiles FOR SELECT 
+    USING (auth.uid() = id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('officer', 'admin')));
+
+CREATE POLICY "Users read own farmer profile" ON farmers FOR SELECT 
+    USING (profile_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('officer', 'admin')));
+
+-- 3. BOOKINGS POLICIES
+CREATE POLICY "Farmers create bookings" ON bookings FOR INSERT 
+    WITH CHECK (EXISTS (SELECT 1 FROM farmers WHERE id = farmer_id AND profile_id = auth.uid()));
 
 CREATE POLICY "Farmers read own bookings" ON bookings FOR SELECT 
-    USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('officer', 'admin')));
+    USING (EXISTS (SELECT 1 FROM farmers WHERE id = farmer_id AND profile_id = auth.uid()) OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('officer', 'admin')));
 
-CREATE POLICY "Farmers create bookings" ON bookings FOR INSERT 
-    WITH CHECK (auth.uid() = user_id);
+-- 4. OFFICER & PROCUREMENTS POLICIES
+CREATE POLICY "Officers insert procurements" ON procurements FOR INSERT 
+    WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'officer'));
 
-CREATE POLICY "Farmers read own payments" ON payments_dbt FOR SELECT 
-    USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('officer', 'admin')));
+CREATE POLICY "Officers update queue" ON queue FOR UPDATE 
+    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('officer', 'admin')));
 
--- 3. OFFICER POLICIES
-CREATE POLICY "Officers create weighments" ON weighments FOR INSERT 
-    WITH CHECK (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'officer'));
+-- 5. ADMIN / TREASURY PAYMENTS POLICIES
+CREATE POLICY "Admins update payments" ON payments FOR UPDATE 
+    USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
-CREATE POLICY "Officers update bookings status" ON bookings FOR UPDATE 
-    USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('officer', 'admin')));
-
--- 4. ADMIN POLICIES (Full Clearance & DBT Disbursement)
-CREATE POLICY "Admins update DBT payments" ON payments_dbt FOR UPDATE 
-    USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Farmers read own payments" ON payments FOR SELECT 
+    USING (EXISTS (SELECT 1 FROM farmers WHERE id = farmer_id AND profile_id = auth.uid()) OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('officer', 'admin')));

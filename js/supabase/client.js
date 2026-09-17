@@ -1,25 +1,40 @@
 /**
  * =========================================================
  * SUPABASE: CLIENT INITIALIZER (js/supabase/client.js)
- * Live Supabase Client with Seamless Local Storage Fallback
+ * Relational 9-Table Local & Remote Store
  * =========================================================
  */
 
-import { CONFIG } from '../config.js';
 import { safeLocalStorageGet, safeLocalStorageSet } from '../utils/helpers.js';
-import { MOCK_CENTRES, MOCK_CROPS, MOCK_BOOKINGS, MOCK_PAYMENTS, MOCK_NOTIFICATIONS } from '../data/mockData.js';
+import { 
+  MOCK_PROFILES, 
+  MOCK_FARMERS, 
+  MOCK_MANDIS, 
+  MOCK_CROPS, 
+  MOCK_SLOTS, 
+  MOCK_BOOKINGS, 
+  MOCK_QUEUE, 
+  MOCK_PROCUREMENTS, 
+  MOCK_PAYMENTS, 
+  MOCK_NOTIFICATIONS 
+} from '../data/mockData.js';
 
 class SupabaseClientWrapper {
   constructor() {
-    this.isLive = false;
-    this.dbKey = 'kisanprocure_supabase_localdb';
+    this.dbKey = 'kisanprocure_supabase_localdb_v2';
 
-    // Initialize local DB cache if empty
+    // Initialize local relational cache
     if (!safeLocalStorageGet(this.dbKey)) {
       safeLocalStorageSet(this.dbKey, {
-        centres: MOCK_CENTRES,
+        profiles: MOCK_PROFILES,
+        farmers: MOCK_FARMERS,
+        mandis: MOCK_MANDIS,
+        centres: MOCK_MANDIS, // Alias
         crops: MOCK_CROPS,
+        slots: MOCK_SLOTS,
         bookings: MOCK_BOOKINGS,
+        queue: MOCK_QUEUE,
+        procurements: MOCK_PROCUREMENTS,
         payments: MOCK_PAYMENTS,
         notifications: MOCK_NOTIFICATIONS,
         currentServingToken: 18,
@@ -29,7 +44,7 @@ class SupabaseClientWrapper {
   }
 
   getLocalDb() {
-    return safeLocalStorageGet(this.dbKey);
+    return safeLocalStorageGet(this.dbKey) || {};
   }
 
   saveLocalDb(data) {

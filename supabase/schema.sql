@@ -1,116 +1,113 @@
 -- =========================================================
--- KISANPROCURE DATABASE SCHEMA (supabase/schema.sql)
--- PostgreSQL / Supabase Relational DDL (SIH PS 26032)
+-- KISANPROCURE: SUPABASE / POSTGRESQL RELATIONAL SCHEMA
+-- Exact 9-Table Schema Definition (SIH Problem Statement 26032)
 -- =========================================================
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. USERS TABLE (Farmers, Officers, Admins)
-CREATE TABLE IF NOT EXISTS users (
+-- 1. PROFILES
+CREATE TABLE IF NOT EXISTS profiles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    full_name VARCHAR(100) NOT NULL,
-    farmer_code VARCHAR(20) UNIQUE,
+    full_name VARCHAR(150) NOT NULL,
     phone VARCHAR(15) UNIQUE NOT NULL,
-    aadhaar_masked VARCHAR(20),
-    role VARCHAR(20) NOT NULL CHECK (role IN ('farmer', 'officer', 'admin')),
-    village VARCHAR(100),
-    district VARCHAR(100),
-    state VARCHAR(50) DEFAULT 'Bihar',
-    bank_account_mask VARCHAR(30),
-    ifsc_code VARCHAR(15),
+    role VARCHAR(30) NOT NULL CHECK (role IN ('farmer', 'officer', 'admin')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. PROCUREMENT CENTRES (Mandis)
-CREATE TABLE IF NOT EXISTS procurement_centres (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    centre_code VARCHAR(20) UNIQUE NOT NULL,
+-- 2. FARMERS
+CREATE TABLE IF NOT EXISTS farmers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    farmer_code VARCHAR(30) UNIQUE NOT NULL,
+    profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    address TEXT,
+    village VARCHAR(100),
     district VARCHAR(100) NOT NULL,
+    state VARCHAR(100) DEFAULT 'Bihar',
+    bank_account_masked VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. MANDIS (Procurement Centres)
+CREATE TABLE IF NOT EXISTS mandis (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
     address TEXT NOT NULL,
-    daily_capacity INT DEFAULT 100,
-    active_tokens INT DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'active'
+    district VARCHAR(100) NOT NULL,
+    state VARCHAR(100) DEFAULT 'Bihar'
 );
 
--- 3. CROPS & MSP MASTER
-CREATE TABLE IF NOT EXISTS crops_master (
+-- 4. CROPS (MSP Master)
+CREATE TABLE IF NOT EXISTS crops (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    code VARCHAR(20) UNIQUE NOT NULL,
+    crop_name VARCHAR(100) NOT NULL,
     msp_per_quintal NUMERIC(10, 2) NOT NULL,
-    season VARCHAR(20) NOT NULL,
-    max_moisture_percentage NUMERIC(4, 2) DEFAULT 12.0
+    season VARCHAR(30) NOT NULL
 );
 
--- 4. BOOKING SLOTS
-CREATE TABLE IF NOT EXISTS booking_slots (
+-- 5. SLOTS
+CREATE TABLE IF NOT EXISTS slots (
     id SERIAL PRIMARY KEY,
-    centre_id INT REFERENCES procurement_centres(id) ON DELETE CASCADE,
+    mandi_id INT NOT NULL REFERENCES mandis(id) ON DELETE CASCADE,
     slot_date DATE NOT NULL,
-    slot_time VARCHAR(30) NOT NULL,
-    total_capacity INT DEFAULT 20,
-    booked_count INT DEFAULT 0,
-    is_recommended BOOLEAN DEFAULT FALSE,
-    UNIQUE(centre_id, slot_date, slot_time)
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    max_capacity INT DEFAULT 20,
+    available_capacity INT DEFAULT 20,
+    UNIQUE(mandi_id, slot_date, start_time, end_time)
 );
 
--- 5. FARMER BOOKINGS & DIGITAL TOKENS
+-- 6. BOOKINGS
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    booking_number VARCHAR(30) UNIQUE NOT NULL,
+    farmer_id UUID NOT NULL REFERENCES farmers(id) ON DELETE CASCADE,
+    slot_id INT NOT NULL REFERENCES slots(id),
+    crop_id INT NOT NULL REFERENCES crops(id),
+    declared_quantity NUMERIC(8, 2) NOT NULL,
     token_number INT NOT NULL,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    centre_id INT REFERENCES procurement_centres(id),
-    crop_id INT REFERENCES crops_master(id),
-    slot_id INT REFERENCES booking_slots(id),
-    expected_quantity_quintals NUMERIC(8, 2) NOT NULL,
     status VARCHAR(30) DEFAULT 'booked' CHECK (status IN ('booked', 'in_progress', 'weighed', 'completed', 'cancelled')),
-    booking_date DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. WEIGHMENT & QUALITY INSPECTIONS
-CREATE TABLE IF NOT EXISTS weighments (
+-- 7. QUEUE
+CREATE TABLE IF NOT EXISTS queue (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
-    officer_id UUID REFERENCES users(id),
-    actual_quantity_quintals NUMERIC(8, 2) NOT NULL,
-    quality_grade VARCHAR(20) DEFAULT 'Grade A',
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    token_number INT NOT NULL,
+    status VARCHAR(30) DEFAULT 'waiting' CHECK (status IN ('waiting', 'calling', 'serving', 'completed', 'skipped')),
+    called_at TIMESTAMP WITH TIME ZONE,
+    served_at TIMESTAMP WITH TIME ZONE
+);
+
+-- 8. PROCUREMENTS
+CREATE TABLE IF NOT EXISTS procurements (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    actual_quantity NUMERIC(8, 2) NOT NULL,
+    quality_grade VARCHAR(30) DEFAULT 'Grade A',
     moisture_percentage NUMERIC(4, 2) NOT NULL,
-    msp_applied NUMERIC(10, 2) NOT NULL,
-    total_payout_amount NUMERIC(12, 2) NOT NULL,
-    weighment_slip_number VARCHAR(40) UNIQUE NOT NULL,
+    msp_rate NUMERIC(10, 2) NOT NULL,
+    total_amount NUMERIC(12, 2) NOT NULL,
+    status VARCHAR(30) DEFAULT 'verified' CHECK (status IN ('verified', 'approved', 'rejected')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 7. DIRECT BENEFIT TRANSFER (DBT) PAYMENTS
-CREATE TABLE IF NOT EXISTS payments_dbt (
+-- 9. PAYMENTS
+CREATE TABLE IF NOT EXISTS payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    weighment_id UUID REFERENCES weighments(id) ON DELETE CASCADE,
-    booking_id UUID REFERENCES bookings(id),
-    user_id UUID REFERENCES users(id),
-    transaction_reference VARCHAR(50) UNIQUE NOT NULL,
+    procurement_id UUID NOT NULL REFERENCES procurements(id) ON DELETE CASCADE,
+    farmer_id UUID NOT NULL REFERENCES farmers(id),
+    transaction_id VARCHAR(50) UNIQUE NOT NULL,
     amount NUMERIC(12, 2) NOT NULL,
-    bank_account_mask VARCHAR(30),
-    ifsc_code VARCHAR(15),
-    status VARCHAR(20) DEFAULT 'processing' CHECK (status IN ('processing', 'paid', 'failed')),
-    disbursed_at TIMESTAMP WITH TIME ZONE
+    payment_status VARCHAR(30) DEFAULT 'processing' CHECK (payment_status IN ('processing', 'paid', 'failed')),
+    paid_at TIMESTAMP WITH TIME ZONE
 );
 
--- 8. REAL-TIME NOTIFICATIONS
-CREATE TABLE IF NOT EXISTS notifications (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(150) NOT NULL,
-    message TEXT NOT NULL,
-    type VARCHAR(30) DEFAULT 'info',
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes for lightning fast live queue queries
-CREATE INDEX IF NOT EXISTS idx_bookings_centre_status ON bookings(centre_id, status);
-CREATE INDEX IF NOT EXISTS idx_bookings_token ON bookings(token_number);
-CREATE INDEX IF NOT EXISTS idx_payments_user ON payments_dbt(user_id);
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_farmers_profile ON farmers(profile_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_farmer ON bookings(farmer_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_slot ON bookings(slot_id);
+CREATE INDEX IF NOT EXISTS idx_queue_booking ON queue(booking_id);
+CREATE INDEX IF NOT EXISTS idx_queue_token ON queue(token_number);
+CREATE INDEX IF NOT EXISTS idx_procurements_booking ON procurements(booking_id);
+CREATE INDEX IF NOT EXISTS idx_payments_farmer ON payments(farmer_id);
