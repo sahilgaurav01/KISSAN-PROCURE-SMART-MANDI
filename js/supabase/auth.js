@@ -11,16 +11,12 @@ const AUTH_KEY = 'kisanprocure_auth_session';
 
 export const AuthService = {
   getCurrentUser() {
-    return safeLocalStorageGet(AUTH_KEY, {
-      id: 'a0000000-0000-0000-0000-000000000001',
-      fullName: 'Ramesh Kumar',
-      farmerCode: 'FARM1001',
-      phone: '9876543210',
-      role: 'farmer',
-      village: 'Minapur',
-      district: 'Muzaffarpur',
-      bankAccount: 'SBI-XXXX-4589'
-    });
+    return safeLocalStorageGet(AUTH_KEY, null);
+  },
+
+  isAuthenticated() {
+    const user = this.getCurrentUser();
+    return !!(user && user.isLoggedIn);
   },
 
   loginAsPersona(role) {
@@ -34,7 +30,8 @@ export const AuthService = {
         role: 'farmer',
         village: 'Minapur',
         district: 'Muzaffarpur',
-        bankAccount: 'SBI-XXXX-4589'
+        bankAccount: 'SBI-XXXX-4589',
+        isLoggedIn: true
       };
     } else if (role === 'officer') {
       session = {
@@ -44,7 +41,8 @@ export const AuthService = {
         phone: '9876543200',
         role: 'officer',
         village: 'Muzaffarpur',
-        district: 'Muzaffarpur'
+        district: 'Muzaffarpur',
+        isLoggedIn: true
       };
     } else {
       session = {
@@ -54,7 +52,8 @@ export const AuthService = {
         phone: '9876543201',
         role: 'admin',
         village: 'Patna',
-        district: 'Patna'
+        district: 'Patna',
+        isLoggedIn: true
       };
     }
 

@@ -137,7 +137,7 @@
             </button>
           </div>
 
-          <!-- Active Persona Pill -->
+          <!-- Active Persona Pill & Logout -->
           <div class="flex items-center space-x-2.5 pl-2 border-l border-slate-200">
             <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">
               R
@@ -146,6 +146,9 @@
               <div id="user-name" class="text-xs font-bold text-slate-900">Ramesh Kumar</div>
               <div id="user-role-label" class="text-[10px] text-slate-500 font-mono">ID: FARM1001 • Farmer</div>
             </div>
+            <button onclick="handleLogout()" id="logout-btn" class="ml-1 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Logout">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
           </div>
         </div>
 
@@ -178,8 +181,87 @@
   <!-- ========================================== -->
   <main class="flex-1">
 
+    <!-- VIEW 0: LOGIN & AUTHENTICATION SCREEN -->
+    <section id="view-login" class="view-section py-12 px-4 flex items-center justify-center min-h-[calc(100vh-8rem)]">
+      <div class="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-2xl space-y-6">
+        
+        <!-- Brand Header -->
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 bg-gradient-to-tr from-emerald-700 to-emerald-500 rounded-2xl mx-auto flex items-center justify-center text-white shadow-lg shadow-emerald-600/30">
+            <i data-lucide="sprout" class="w-8 h-8"></i>
+          </div>
+          <h1 class="text-2xl font-black text-slate-900 tracking-tight">Kisan<span class="text-emerald-600">Procure</span></h1>
+          <p class="text-xs text-slate-500 font-medium">Smart Mandi Queue & Transparent MSP System</p>
+        </div>
+
+        <!-- Phone & OTP Form -->
+        <form onsubmit="handleInAppLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Mobile Number / Farmer ID</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-3 text-xs font-bold text-slate-400">+91</span>
+              <input type="tel" id="inapp-login-phone" value="9876543210" required maxlength="10" placeholder="Enter 10-digit mobile number" class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20" />
+            </div>
+            <span class="text-[10px] text-slate-400 block mt-1">Default test phone: <strong class="text-emerald-700">9876543210</strong> (Ramesh Kumar)</span>
+          </div>
+
+          <div id="inapp-otp-container" class="hidden space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Enter OTP Code</label>
+            <input type="text" id="inapp-login-otp" value="123456" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-slate-900 tracking-widest text-center outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20" />
+            <span class="text-[10px] text-emerald-600 font-semibold block">✓ Auto-filled demo OTP: 123456</span>
+          </div>
+
+          <button type="submit" id="inapp-login-btn" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-600/25 flex items-center justify-center space-x-2">
+            <span>Send OTP & Sign In</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- 1-Click Fast Persona Switcher -->
+        <div class="pt-4 border-t border-slate-100 space-y-3">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block text-center">Or 1-Click Select Persona</span>
+
+          <div class="space-y-2">
+            <button onclick="handlePersonaLogin('farmer')" class="w-full p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-950 font-bold text-xs flex items-center justify-between transition group">
+              <div class="flex items-center space-x-3">
+                <span class="text-xl">👨‍🌾</span>
+                <div class="text-left">
+                  <div class="font-bold text-slate-900">Farmer Ramesh Kumar</div>
+                  <div class="text-[10px] text-emerald-700">Token #23 • 40 Qtl Wheat</div>
+                </div>
+              </div>
+              <span class="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-1 rounded-lg font-mono font-bold group-hover:bg-emerald-600 group-hover:text-white transition">LOGIN &rarr;</span>
+            </button>
+
+            <button onclick="handlePersonaLogin('officer')" class="w-full p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-950 font-bold text-xs flex items-center justify-between transition group">
+              <div class="flex items-center space-x-3">
+                <span class="text-xl">👮</span>
+                <div class="text-left">
+                  <div class="font-bold text-slate-900">Officer Rajesh Sharma</div>
+                  <div class="text-[10px] text-amber-700">Inspector • Mandi Desk 1</div>
+                </div>
+              </div>
+              <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-1 rounded-lg font-mono font-bold group-hover:bg-amber-600 group-hover:text-white transition">LOGIN &rarr;</span>
+            </button>
+
+            <button onclick="handlePersonaLogin('admin')" class="w-full p-3 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-950 font-bold text-xs flex items-center justify-between transition group">
+              <div class="flex items-center space-x-3">
+                <span class="text-xl">🏛️</span>
+                <div class="text-left">
+                  <div class="font-bold text-slate-900">Director Dr. Sanjay Meena</div>
+                  <div class="text-[10px] text-blue-700">State Directorate & DBT</div>
+                </div>
+              </div>
+              <span class="text-[10px] bg-blue-200 text-blue-900 px-2 py-1 rounded-lg font-mono font-bold group-hover:bg-blue-600 group-hover:text-white transition">LOGIN &rarr;</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- VIEW 1: LANDING PAGE -->
-    <section id="view-landing" class="view-section">
+    <section id="view-landing" class="view-section hidden">
       <!-- Hero -->
       <div class="relative overflow-hidden bg-gradient-to-b from-emerald-900 via-emerald-800 to-slate-900 text-white pt-16 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6 max-w-3xl mx-auto">

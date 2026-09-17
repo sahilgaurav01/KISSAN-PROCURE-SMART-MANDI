@@ -1,7 +1,7 @@
 /**
  * =========================================================
  * CORE APP BOOTSTRAPPER (js/app.js)
- * Master Module Integrator & Global Window Event Dispatcher
+ * Master Module Integrator & Authentication Flow Controller
  * =========================================================
  */
 
@@ -44,24 +44,71 @@ window.closePassModal = closePassModal;
 window.disbursePayment = disbursePayment;
 window.changeQueueCentre = () => renderLiveQueue();
 
-let activeRole = 'farmer';
-let currentTab = 'farmer-dashboard';
+// Authentication Handlers
+window.handlePersonaLogin = handlePersonaLogin;
+window.handleInAppLogin = handleInAppLogin;
+window.handleLogout = handleLogout;
 
-export function switchRole(role) {
-  activeRole = role;
+let isOtpSent = false;
+
+export function handlePersonaLogin(role) {
   const user = AuthService.loginAsPersona(role);
   updateNavbarProfile(user);
+  updateRoleButtons(role);
 
-  if (role === 'farmer') currentTab = 'farmer-dashboard';
-  else if (role === 'officer') currentTab = 'officer-desk';
-  else if (role === 'admin') currentTab = 'admin-analytics';
+  if (role === 'farmer') switchTab('farmer-dashboard');
+  else if (role === 'officer') switchTab('officer-desk');
+  else if (role === 'admin') switchTab('admin-analytics');
 
-  updateRoleButtons();
-  switchTab(currentTab);
+  showToast('✓ Signed In Successfully', `Welcome, ${user.fullName} (${role.toUpperCase()})`);
+}
+
+export function handleInAppLogin(e) {
+  e.preventDefault();
+  const phone = document.getElementById('inapp-login-phone').value.trim();
+  const otpContainer = document.getElementById('inapp-otp-container');
+  const btn = document.getElementById('inapp-login-btn');
+
+  if (!isOtpSent) {
+    isOtpSent = true;
+    otpContainer.classList.remove('hidden');
+    btn.innerHTML = '<span>Verify OTP & Sign In</span><i data-lucide="check" class="w-4 h-4"></i>';
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  let role = 'farmer';
+  if (phone === '9876543200') role = 'officer';
+  else if (phone === '9876543201') role = 'admin';
+
+  handlePersonaLogin(role);
+}
+
+export function handleLogout() {
+  AuthService.logout();
+  document.getElementById('nav-links').innerHTML = '';
+  document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+  document.getElementById('view-login')?.classList.remove('hidden');
+
+  const avatar = document.getElementById('user-avatar');
+  const name = document.getElementById('user-name');
+  const label = document.getElementById('user-role-label');
+  if (avatar) avatar.textContent = '?';
+  if (name) name.textContent = 'Not Signed In';
+  if (label) label.textContent = 'Please log in to proceed';
+
+  showToast('Logged Out', 'You have been signed out of KisanProcure.');
+}
+
+export function switchRole(role) {
+  handlePersonaLogin(role);
 }
 
 export function switchTab(tabId) {
-  currentTab = tabId;
+  // If not authenticated and trying to access a protected view, redirect to login
+  if (!AuthService.isAuthenticated() && tabId !== 'login') {
+    tabId = 'login';
+  }
 
   // Hide all sections
   document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
@@ -69,6 +116,10 @@ export function switchTab(tabId) {
   // Show target section
   const target = document.getElementById(`view-${tabId}`);
   if (target) target.classList.remove('hidden');
+
+  if (tabId !== 'login') {
+    renderNavbar(AuthService.getCurrentUser()?.role || 'farmer');
+  }
 
   // Trigger modular renderers
   if (tabId === 'farmer-dashboard') renderFarmerDashboard();
@@ -89,12 +140,48 @@ export function switchTab(tabId) {
   if (window.lucide) window.lucide.createIcons();
 }
 
-function updateRoleButtons() {
+function renderNavbar(role) {
+  const nav = document.getElementById('nav-links');
+  if (!nav) return;
+  nav.innerHTML = '';
+
+  let links = [];
+  if (role === 'farmer') {
+    links = [
+      { id: 'farmer-dashboard', label: 'Dashboard', icon: 'activity' },
+      { id: 'book-slot', label: 'Book Slot', icon: 'calendar' },
+      { id: 'live-queue', label: 'Live Queue', icon: 'radio' },
+      { id: 'procurement-status', label: 'Procurement Slips', icon: 'file-text' },
+      { id: 'payments', label: 'DBT Payments', icon: 'credit-card' }
+    ];
+  } else if (role === 'officer') {
+    links = [
+      { id: 'officer-desk', label: 'Mandi Desk Control', icon: 'scale' },
+      { id: 'live-queue', label: 'Live Queue View', icon: 'radio' }
+    ];
+  } else {
+    links = [
+      { id: 'admin-analytics', label: 'State Oversight & Analytics', icon: 'building-2' }
+    ];
+  }
+
+  links.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5';
+    btn.onclick = () => switchTab(l.id);
+    btn.innerHTML = `<i data-lucide="${l.icon}" class="w-4 h-4"></i><span>${l.label}</span>`;
+    nav.appendChild(btn);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function updateRoleButtons(role) {
   const roles = ['farmer', 'officer', 'admin'];
   roles.forEach(r => {
     const btn = document.getElementById(`role-btn-${r}`);
     if (btn) {
-      if (activeRole === r) {
+      if (role === r) {
         btn.className = 'px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-800 text-emerald-100 border border-emerald-600 transition flex items-center space-x-1';
       } else {
         btn.className = 'px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center space-x-1';
@@ -103,7 +190,7 @@ function updateRoleButtons() {
   });
 }
 
-// Notifications toggle
+// Notifications drawer toggle
 window.toggleNotificationDrawer = () => {
   document.getElementById('drawer-notifications')?.classList.toggle('hidden');
 };
@@ -116,10 +203,20 @@ window.markAllNotificationsRead = () => {
   if (badge) badge.classList.add('hidden');
 };
 
+// Initial Startup
 window.addEventListener('DOMContentLoaded', () => {
-  const user = AuthService.getCurrentUser();
-  updateNavbarProfile(user);
   applyTranslations();
-  switchRole('farmer');
+
+  // Clear previous session so user starts at the login screen first!
+  AuthService.logout();
+  switchTab('login');
+
+  const avatar = document.getElementById('user-avatar');
+  const name = document.getElementById('user-name');
+  const label = document.getElementById('user-role-label');
+  if (avatar) avatar.textContent = '?';
+  if (name) name.textContent = 'Sign In';
+  if (label) label.textContent = 'Select persona to proceed';
+
   if (window.lucide) window.lucide.createIcons();
 });
