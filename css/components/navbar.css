@@ -1,0 +1,13 @@
+/* =========================================================
+   CSS COMPONENT: NAVBAR (css/components/navbar.css)
+   ========================================================= */
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-pill {
+  transition: all 0.2s ease-in-out;
+}

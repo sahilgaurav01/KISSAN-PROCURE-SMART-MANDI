@@ -1,65 +1,109 @@
-# 🌾 KisanProcure (SIH Problem Statement 26032)
-### *Modular Architecture & Code Presentation Guide*
-#### *Pure HTML5, CSS3, & Modular ES6 JavaScript*
+# 🌾 KISSAN-PROCURE-SMART-MANDI
+### *Smart Mandi Slot Booking, Real-Time Queue Streaming & Transparent MSP Disbursement Platform*
+#### *Smart India Hackathon • Problem Statement 26032*
 
 ---
 
-## 🏛️ Project Directory Structure
+## 🏛️ Complete Production Directory Structure
 
 ```
-d:/sihprojecct/
+KISSAN-PROCURE-SMART-MANDI/
 │
-├── index.html                     # Semantic Single-Page Application Layout & View Containers
+├── index.html                   # Master Single-Page Application & Landing Hub
+├── README.md                    # Project Documentation & Architecture Walkthrough
+│
+├── assets/
+│   ├── images/
+│   │   ├── logo.svg             # KisanProcure Brand Emblem
+│   │   ├── farmer.svg           # Farmer Persona Avatar
+│   │   └── mandi.svg            # Mandi Yard Illustration
+│   └── icons/
 │
 ├── css/
-│   ├── style.css                  # Base typography, neon indicators & responsive theme
-│   └── ticket.css                 # Digital Token Pass cutout edges & print styles
+│   ├── style.css                # Master CSS orchestrator
+│   ├── variables.css            # Design tokens, palette (kisan green, mandi amber)
+│   ├── responsive.css           # Mobile & tablet media queries
+│   │
+│   ├── components/
+│   │   ├── navbar.css           # Top bar and persona switcher styling
+│   │   ├── sidebar.css          # Navigation sidebar styles
+│   │   ├── cards.css            # Glassmorphic and spotlight cards
+│   │   ├── buttons.css          # Action buttons & call-to-actions
+│   │   ├── modal.css            # Accessible modal overlay styles
+│   │   ├── tables.css           # Roster and ledger tables
+│   │   └── timeline.css         # 6-step lifecycle timeline
+│   │
+│   └── pages/
+│       ├── landing.css          # Hero banner and workflow showcase
+│       ├── farmer.css           # Farmer dashboard & token cards
+│       ├── officer.css          # Officer control desk
+│       └── government.css       # State analytics and KPI grids
 │
-└── js/
-    ├── main.js                    # Central Application Orchestrator & View Switcher
-    │
-    ├── config/
-    │   ├── state.js               # Central State Store with LocalStorage Persistence
-    │   └── i18n.js                # English & Hindi (हिन्दी) Localization Dictionaries
-    │
-    ├── data/
-    │   └── mockData.js            # Master Seed Datasets (Centres, Crops, MSPs, Bookings)
-    │
-    └── modules/
-        ├── farmerDashboard.js     # Module 1: Upcoming Slot & Token #23 Spotlight
-        ├── slotBooking.js         # Module 2: AI Smart Slot Recommender & Booking Wizard
-        ├── liveQueue.js           # Module 3: Real-Time Mandi Queue Visualizer & Tracker
-        ├── officerDesk.js         # Module 4: Officer Control Desk ("Call Next Farmer")
-        ├── weighmentInspection.js # Module 5: Physical Weighbridge & Quality Grading Modal
-        ├── procurementStatus.js   # Module 6: 6-Step Lifecycle Timeline & Weight Slip
-        ├── paymentLedger.js       # Module 7: Direct Benefit Transfer (DBT) Ledger
-        ├── adminAnalytics.js      # Module 8: State Oversight KPIs & Chart.js Trends
-        └── notifications.js       # Module 9: Proximity Alert Toast & Notification Drawer
+├── js/
+│   ├── app.js                   # Master Application Bootstrapper & Router
+│   ├── config.js                # Supabase & Application Configuration
+│   │
+│   ├── supabase/
+│   │   ├── client.js            # Supabase Client Initializer with offline cache
+│   │   ├── auth.js              # Persona login & session persistence
+│   │   ├── farmers.js           # Farmer identity & profile queries
+│   │   ├── bookings.js          # Slot bookings & token allocation
+│   │   ├── queue.js             # Live token queue streaming
+│   │   ├── procurement.js       # Weighment & quality inspection insertion
+│   │   └── payments.js          # DBT payment ledger & status updates
+│   │
+│   ├── farmer/
+│   │   ├── farmer-dashboard.js  # Upcoming slot & Token #23 spotlight
+│   │   ├── slot-booking.js      # 4-step wizard & AI slot recommendation
+│   │   ├── queue-tracker.js     # Horizontal queue sequence & countdown ETA
+│   │   ├── procurement-status.js# 6-step lifecycle timeline & certificate
+│   │   └── payment-ledger.js    # Bank payout ledger & transaction receipts
+│   │
+│   ├── officer/
+│   │   ├── officer-dashboard.js # Mandi desk throughput counters
+│   │   ├── queue-control.js     # "⚡ Call Next Farmer" & proximity alerts
+│   │   ├── weighment.js         # Physical weighbridge & MSP calculator
+│   │   └── farmer-verification.js# Biometric & token verification gate
+│   │
+│   ├── government/
+│   │   ├── government-dashboard.js# State macro KPI counters
+│   │   ├── analytics.js         # Chart.js volume trends & crop distribution
+│   │   └── dbt.js               # Treasury DBT Clearance & 1-click disbursement
+│   │
+│   ├── components/
+│   │   ├── navbar.js            # Dynamic header navigation & profile pill
+│   │   ├── sidebar.js           # Dashboard sidebar links
+│   │   ├── modal.js             # Accessible modal manager
+│   │   ├── toast.js             # Floating real-time alert toasts
+│   │   ├── loader.js            # Async operation spinners
+│   │   └── language.js          # English / हिन्दी (Hindi) switcher
+│   │
+│   └── utils/
+│       ├── formatters.js        # Currency (₹ INR), Quintals, Date & Token formatters
+│       ├── validators.js        # Phone, Aadhar & Moisture % validators
+│       ├── constants.js         # Mandi codes, MSP benchmark rates, enums
+│       └── helpers.js           # Confetti triggers, ID generators & LocalStorage
+│
+├── pages/
+│   ├── login.html               # Standalone persona login page
+│   ├── farmer.html              # Standalone farmer portal page
+│   ├── officer.html             # Standalone officer inspection page
+│   ├── government.html          # Standalone government analytics page
+│   ├── booking.html             # Standalone slot reservation page
+│   ├── queue.html               # Standalone full-screen live queue visualizer
+│   ├── procurement.html         # Standalone procurement records page
+│   └── payment.html             # Standalone DBT payout ledger page
+│
+└── supabase/
+    ├── schema.sql               # PostgreSQL Relational DDL (10 tables, indexes, triggers)
+    ├── seed.sql                 # Seed datasets (Muzaffarpur Mandi, Ramesh Kumar #23)
+    └── policies.sql             # Row-Level Security (RLS) fine-grained authorization
 ```
-
----
-
-## 🎤 How to Explain Each File to Judges / Evaluators
-
-| File Path | Functional Purpose | Key Technical Feature to Highlight |
-| :--- | :--- | :--- |
-| **[`index.html`](file:///d:/sihprojecct/index.html)** | Core SPA Shell | Houses all 8 view containers and modals without page reloading. |
-| **[`js/config/state.js`](file:///d:/sihprojecct/js/config/state.js)** | Central State Store | Reactive state store with automatic `localStorage` synchronization. |
-| **[`js/config/i18n.js`](file:///d:/sihprojecct/js/config/i18n.js)** | Localization Engine | Instant toggle between English and Hindi (`हिन्दी`). |
-| **[`js/data/mockData.js`](file:///d:/sihprojecct/js/data/mockData.js)** | Master Datasets | Pre-loads Mandi centres, government MSP benchmarks, and active tokens. |
-| **[`js/modules/farmerDashboard.js`](file:///d:/sihprojecct/js/modules/farmerDashboard.js)** | Farmer Portal | Highlights **Token #23** at Muzaffarpur Central Mandi with live ETA calculation. |
-| **[`js/modules/slotBooking.js`](file:///d:/sihprojecct/js/modules/slotBooking.js)** | Smart Booking | AI heuristic that analyzes slot load and recommends the least congested time window. |
-| **[`js/modules/liveQueue.js`](file:///d:/sihprojecct/js/modules/liveQueue.js)** | Live Queue Track | Animated horizontal sequence track showing real-time token progression. |
-| **[`js/modules/officerDesk.js`](file:///d:/sihprojecct/js/modules/officerDesk.js)** | Officer Desk | "Call Next Farmer" controller that advances tokens and triggers turn proximity alerts. |
-| **[`js/modules/weighmentInspection.js`](file:///d:/sihprojecct/js/modules/weighmentInspection.js)** | Inspection & Weighing | Weighbridge modal: records actual weight, checks moisture (&le;12%), and computes MSP payout. |
-| **[`js/modules/procurementStatus.js`](file:///d:/sihprojecct/js/modules/procurementStatus.js)** | Lifecycle Tracker | 6-step lifecycle tracker (Booked &rarr; Weighed &rarr; Quality Checked &rarr; Paid). |
-| **[`js/modules/paymentLedger.js`](file:///d:/sihprojecct/js/modules/paymentLedger.js)** | DBT Treasury | Direct Benefit Transfer payment records with transaction IDs and bank masks. |
-| **[`js/modules/adminAnalytics.js`](file:///d:/sihprojecct/js/modules/adminAnalytics.js)** | State Analytics | Macro state KPIs, Chart.js trends, and 1-click DBT disbursement approval. |
-| **[`js/modules/notifications.js`](file:///d:/sihprojecct/js/modules/notifications.js)** | Real-Time Alerts | Dispatches floating notification toasts when a farmer is within 3 tokens of their turn. |
 
 ---
 
 ## 🚀 How to Run
 
-1. Simply double-click **`index.html`** to open it directly in any browser.
-2. Zero build steps, zero npm dependencies, and 100% portable!
+1. **Direct Execution**: Simply double-click **`index.html`** in your browser.
+2. **Zero Setup**: Zero node_modules or build dependencies needed.
+3. **Multi-Page Links**: Explore individual subpages in `pages/` or use the full interactive single-page app in `index.html`.

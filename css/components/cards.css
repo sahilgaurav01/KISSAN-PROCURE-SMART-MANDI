@@ -1,0 +1,21 @@
+/* =========================================================
+   CSS COMPONENT: CARDS (css/components/cards.css)
+   ========================================================= */
+
+.kisan-card {
+  background-color: var(--bg-surface);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kisan-card:hover {
+  border-color: #cbd5e1;
+}
+
+.kisan-card-highlight {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}

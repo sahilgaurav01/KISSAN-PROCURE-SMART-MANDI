@@ -1,0 +1,14 @@
+/* =========================================================
+   CSS COMPONENT: SIDEBAR (css/components/sidebar.css)
+   ========================================================= */
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}

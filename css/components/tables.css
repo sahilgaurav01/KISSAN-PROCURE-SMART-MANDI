@@ -1,0 +1,25 @@
+/* =========================================================
+   CSS COMPONENT: DATA TABLES (css/components/tables.css)
+   ========================================================= */
+
+.kisan-table {
+  width: 100%;
+  text-align: left;
+  font-size: 0.75rem;
+  border-collapse: collapse;
+}
+
+.kisan-table th {
+  padding-bottom: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.kisan-table td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}

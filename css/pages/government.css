@@ -1,0 +1,10 @@
+/* =========================================================
+   CSS PAGE: GOVERNMENT PORTAL (css/pages/government.css)
+   ========================================================= */
+
+.kpi-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+}

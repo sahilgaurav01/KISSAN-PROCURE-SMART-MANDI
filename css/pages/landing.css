@@ -1,0 +1,7 @@
+/* =========================================================
+   CSS PAGE: LANDING PAGE (css/pages/landing.css)
+   ========================================================= */
+
+.hero-gradient {
+  background: linear-gradient(180deg, #064e3b 0%, #065f46 50%, #0f172a 100%);
+}
